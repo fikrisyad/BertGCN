@@ -4,6 +4,7 @@ import numpy as np
 import pickle as pkl
 import networkx as nx
 import scipy.sparse as sp
+from konlpy.tag import Hannanum
 from utils import loadWord2Vec, clean_str
 from math import log
 from sklearn import svm
@@ -12,15 +13,16 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 import sys
 from scipy.spatial.distance import cosine
 
-if len(sys.argv) != 2:
-    sys.exit("Use: python build_graph.py <dataset>")
+# if len(sys.argv) != 2:
+#     sys.exit("Use: python build_graph.py <dataset>")
 
-datasets = ['20ng', 'R8', 'R52', 'ohsumed', 'mr']
+# datasets = ['20ng', 'R8', 'R52', 'ohsumed', 'mr']
 # build corpus
-dataset = sys.argv[1]
+# dataset = sys.argv[1]
+dataset = 'korean'
 
-if dataset not in datasets:
-    sys.exit("wrong dataset name")
+# if dataset not in datasets:
+#     sys.exit("wrong dataset name")
 
 # Read Word Vectors
 # word_vector_file = 'data/glove.6B/glove.6B.300d.txt'
@@ -29,34 +31,108 @@ if dataset not in datasets:
 # word_embeddings_dim = len(embd[0])
 
 word_embeddings_dim = 300
-word_vector_map = {}
+word_vector_map = {}  # maybe I can replace this with fasttext?
 
 # shulffing
-doc_name_list = []
-doc_train_list = []
-doc_test_list = []
+doc_name_list = []  # all documents title name
+doc_train_list = []  # train documents title name
+doc_test_list = []  # test documents title title
+doc_val_list = []  # val documents title title
 
-f = open('data/' + dataset + '.txt', 'r')
-lines = f.readlines()
+title_path = '/home/lr/kwonjingun/D2/naver/dataset/processed/title/'
+content_path = '/home/lr/kwonjingun/D2/naver/dataset/processed/content/'
+both_path = '/home/lr/kwonjingun/D2/naver/dataset/processed/both'
+
+ftrain = open(title_path + 'train.source', 'r')
+fval = open(title_path + 'val.source', 'r')
+ftest = open(title_path + 'test.source', 'r')
+
+lines = ftrain.readlines()
 for line in lines:
     doc_name_list.append(line.strip())
-    temp = line.split("\t")
-    if temp[1].find('test') != -1:
-        doc_test_list.append(line.strip())
-    elif temp[1].find('train') != -1:
-        doc_train_list.append(line.strip())
-f.close()
-# print(doc_train_list)
-# print(doc_test_list)
+    doc_train_list.append(line.strip())
+ftrain.close()
+
+lines = fval.readlines()
+for line in lines:
+    doc_name_list.append(line.strip())
+    doc_val_list.append(line.strip())
+fval.close()
+
+lines = ftrain.readlines()
+for line in lines:
+    doc_name_list.append(line.strip())
+    doc_test_list.append(line.strip())
+ftest.close()
 
 doc_content_list = []
-f = open('data/corpus/' + dataset + '.clean.txt', 'r')
-lines = f.readlines()
+train_content_list = []
+val_content_list = []
+test_content_list = []
+
+ftrain = open(content_path + 'train.source', 'r')
+fval = open(content_path + 'val.source', 'r')
+ftest = open(content_path + 'test.source', 'r')
+
+lines = ftrain.readlines()
 for line in lines:
     doc_content_list.append(line.strip())
-f.close()
-# print(doc_content_list)
+    train_content_list.append(line.strip())
+ftrain.close()
 
+lines = fval.readlines()
+for line in lines:
+    doc_content_list.append(line.strip())
+    val_content_list.append(line.strip())
+fval.close()
+
+lines = ftest.readlines()
+for line in lines:
+    doc_content_list.append(line.strip())
+    test_content_list.append(line.strip())
+ftest.close()
+
+
+
+# label list
+label_set = set()
+train_label_list = []
+val_label_list = []
+test_label_list = []
+doc_label_list = []
+
+ftrain = open(title_path + 'train.target', 'r')
+fval = open(title_path + 'val.target', 'r')
+ftest = open(title_path + 'test.target', 'r')
+
+lines = ftrain.readlines()
+for line in lines:
+    temp = line.split(">")
+    label_set.add(temp[0])
+    train_label_list.append(temp[0])
+    doc_label_list.append(temp[0])
+ftrain.close()
+
+lines = fval.readlines()
+for line in lines:
+    temp = line.split(">")
+    label_set.add(temp[0])
+    val_label_list.append(temp[0])
+    doc_label_list.append(temp[0])
+fval.close()
+
+lines = ftest.readlines()
+for line in lines:
+    temp = line.split(">")
+    label_set.add(temp[0])
+    test_label_list.append(temp[0])
+    doc_label_list.append(temp[0])
+ftest.close()
+
+label_list = list(label_set)
+
+# partial labeled data
+# train_ids = train_ids[:int(0.2 * len(train_ids))]
 train_ids = []
 for train_name in doc_train_list:
     train_id = doc_name_list.index(train_name)
@@ -64,12 +140,21 @@ for train_name in doc_train_list:
 print(train_ids)
 random.shuffle(train_ids)
 
-# partial labeled data
-# train_ids = train_ids[:int(0.2 * len(train_ids))]
-
 train_ids_str = '\n'.join(str(index) for index in train_ids)
 f = open('data/' + dataset + '.train.index', 'w')
 f.write(train_ids_str)
+f.close()
+
+val_ids = []
+for val_name in doc_val_list:
+    val_id = doc_name_list.index(val_name)
+    val_ids.append(val_id)
+print(val_ids)
+random.shuffle(val_ids)
+
+val_ids_str = '\n'.join(str(index) for index in val_ids)
+f = open('data/' + dataset + '.val.index', 'w')
+f.write(val_ids_str)
 f.close()
 
 test_ids = []
@@ -84,17 +169,20 @@ f = open('data/' + dataset + '.test.index', 'w')
 f.write(test_ids_str)
 f.close()
 
-ids = train_ids + test_ids
+ids = train_ids + test_ids + val_ids
 print(ids)
 print(len(ids))
 
 shuffle_doc_name_list = []
 shuffle_doc_words_list = []
-for id in ids:
-    shuffle_doc_name_list.append(doc_name_list[int(id)])
-    shuffle_doc_words_list.append(doc_content_list[int(id)])
+shuffle_doc_label_list = []
+for idx in ids:
+    shuffle_doc_name_list.append(doc_name_list[int(idx)])
+    shuffle_doc_words_list.append(doc_content_list[int(idx)])
+    shuffle_doc_label_list.append(doc_label_list[int(idx)])
 shuffle_doc_name_str = '\n'.join(shuffle_doc_name_list)
 shuffle_doc_words_str = '\n'.join(shuffle_doc_words_list)
+shuffle_doc_label_str = '\n'.join(shuffle_doc_label_list)
 
 f = open('data/' + dataset + '_shuffle.txt', 'w')
 f.write(shuffle_doc_name_str)
@@ -104,11 +192,17 @@ f = open('data/corpus/' + dataset + '_shuffle.txt', 'w')
 f.write(shuffle_doc_words_str)
 f.close()
 
+f = open('data/corpus/' + dataset + 'label_shuffle.txt', 'w')
+f.write(shuffle_doc_label_str)
+f.close()
+
 # build vocab
 word_freq = {}
 word_set = set()
+hannanum = Hannanum()
 for doc_words in shuffle_doc_words_list:
-    words = doc_words.split()
+    # words = doc_words.split()
+    words = hannanum.morphs(doc_words)
     for word in words:
         word_set.add(word)
         if word in word_freq:
@@ -123,7 +217,8 @@ word_doc_list = {}
 
 for i in range(len(shuffle_doc_words_list)):
     doc_words = shuffle_doc_words_list[i]
-    words = doc_words.split()
+    # words = doc_words.split()
+    words = hannanum.morphs(doc_words)
     appeared = set()
     for word in words:
         if word in appeared:
@@ -208,11 +303,11 @@ Word definitions end
 '''
 
 # label list
-label_set = set()
-for doc_meta in shuffle_doc_name_list:
-    temp = doc_meta.split('\t')
-    label_set.add(temp[2])
-label_list = list(label_set)
+# label_set = set()
+# for doc_meta in shuffle_doc_name_list:
+#     temp = doc_meta.split('\t')
+#     label_set.add(temp[2])
+# label_list = list(label_set)
 
 label_list_str = '\n'.join(label_list)
 f = open('data/corpus/' + dataset + '_labels.txt', 'w')
@@ -222,16 +317,18 @@ f.close()
 # x: feature vectors of training docs, no initial features
 # slect 90% training set
 train_size = len(train_ids)
-val_size = int(0.1 * train_size)
-real_train_size = train_size - val_size  # - int(0.5 * train_size)
+# val_size = int(0.1 * train_size)
+val_size = len(val_size)
+# real_train_size = train_size - val_size  # - int(0.5 * train_size)
+real_train_size = train_size
 # different training rates
 
-real_train_doc_names = shuffle_doc_name_list[:real_train_size]
-real_train_doc_names_str = '\n'.join(real_train_doc_names)
-
-f = open('data/' + dataset + '.real_train.name', 'w')
-f.write(real_train_doc_names_str)
-f.close()
+# real_train_doc_names = shuffle_doc_name_list[:real_train_size]
+# real_train_doc_names_str = '\n'.join(real_train_doc_names)
+#
+# f = open('data/' + dataset + '.real_train.name', 'w')
+# f.write(real_train_doc_names_str)
+# f.close()
 
 row_x = []
 col_x = []
@@ -239,7 +336,8 @@ data_x = []
 for i in range(real_train_size):
     doc_vec = np.array([0.0 for k in range(word_embeddings_dim)])
     doc_words = shuffle_doc_words_list[i]
-    words = doc_words.split()
+    # words = doc_words.split()
+    words = hannanum.morphs(doc_words)
     doc_len = len(words)
     for word in words:
         if word in word_vector_map:
@@ -260,15 +358,53 @@ x = sp.csr_matrix((data_x, (row_x, col_x)), shape=(
 
 y = []
 for i in range(real_train_size):
-    doc_meta = shuffle_doc_name_list[i]
-    temp = doc_meta.split('\t')
-    label = temp[2]
+    # doc_meta = shuffle_doc_name_list[i]
+    # temp = doc_meta.split('\t')
+    # label = temp[2]
+    label = shuffle_doc_label_list[i]
     one_hot = [0 for l in range(len(label_list))]
     label_index = label_list.index(label)
     one_hot[label_index] = 1
     y.append(one_hot)
 y = np.array(y)
 print(y)
+
+
+# vx: for validation
+val_size = len(val_ids)
+
+row_vx = []
+col_vx = []
+data_vx = []
+for i in range(val_size):
+    doc_vec = np.array([0.0 for k in range(word_embeddings_dim)])
+    doc_words = shuffle_doc_words_list[i + val_size]
+    words = hannanum.morphs(doc_words)
+    doc_len = len(words)
+
+    for word in words:
+        if word in word_vector_map:
+            word_vector = word_vector_map[word]
+            doc_vec = doc_vec + np.array(word_vector)
+
+    for j in range(word_embeddings_dim):
+        col_vx.append(i)
+        col_vx.append(j)
+        data_vx.append(doc_vec[j] / doc_len)
+
+vx = sp.csr_matrix((data_vx, (row_vx, col_vx)),
+                   shape=(val_size, word_embeddings_dim))
+
+vy = []
+for i in range(val_size):
+    label = shuffle_doc_label_list[i + val_size]  # should be replaced with shuffled_val_label_list
+    one_hot = [0 for l in range(len(label_list))]
+    label_index = label_list.index(label)
+    one_hot[label_index] = 1
+    vy.append(one_hot)
+vy = np.array(vy)
+print(vy)
+
 
 # tx: feature vectors of test docs, no initial features
 test_size = len(test_ids)
@@ -278,8 +414,9 @@ col_tx = []
 data_tx = []
 for i in range(test_size):
     doc_vec = np.array([0.0 for k in range(word_embeddings_dim)])
-    doc_words = shuffle_doc_words_list[i + train_size]
-    words = doc_words.split()
+    doc_words = shuffle_doc_words_list[i + train_size + val_size]
+    # words = doc_words.split()
+    words = hannanum.morphs(doc_words)
     doc_len = len(words)
     for word in words:
         if word in word_vector_map:
@@ -298,9 +435,10 @@ tx = sp.csr_matrix((data_tx, (row_tx, col_tx)),
 
 ty = []
 for i in range(test_size):
-    doc_meta = shuffle_doc_name_list[i + train_size]
-    temp = doc_meta.split('\t')
-    label = temp[2]
+    # doc_meta = shuffle_doc_name_list[i + train_size + val_size]
+    # temp = doc_meta.split('\t')
+    # label = temp[2]
+    label = shuffle_doc_label_list[i + train_size + val_size]  # should be replaced with shuffled_test_label_list
     one_hot = [0 for l in range(len(label_list))]
     label_index = label_list.index(label)
     one_hot[label_index] = 1
@@ -325,10 +463,11 @@ row_allx = []
 col_allx = []
 data_allx = []
 
-for i in range(train_size):
+for i in range(train_size + val_size): #following the original code
     doc_vec = np.array([0.0 for k in range(word_embeddings_dim)])
     doc_words = shuffle_doc_words_list[i]
-    words = doc_words.split()
+    # words = doc_words.split()
+    words = hannanum.morphs(doc_words)
     doc_len = len(words)
     for word in words:
         if word in word_vector_map:
@@ -354,10 +493,11 @@ allx = sp.csr_matrix(
     (data_allx, (row_allx, col_allx)), shape=(train_size + vocab_size, word_embeddings_dim))
 
 ally = []
-for i in range(train_size):
-    doc_meta = shuffle_doc_name_list[i]
-    temp = doc_meta.split('\t')
-    label = temp[2]
+for i in range(train_size + val_size):
+    # doc_meta = shuffle_doc_name_list[i]
+    # temp = doc_meta.split('\t')
+    # label = temp[2]
+    label = shuffle_doc_label_list[i]
     one_hot = [0 for l in range(len(label_list))]
     label_index = label_list.index(label)
     one_hot[label_index] = 1
@@ -380,7 +520,8 @@ window_size = 20
 windows = []
 
 for doc_words in shuffle_doc_words_list:
-    words = doc_words.split()
+    # words = doc_words.split()
+    words = hannanum.morphs(doc_words)
     length = len(words)
     if length <= window_size:
         windows.append(words)
@@ -468,7 +609,8 @@ doc_word_freq = {}
 
 for doc_id in range(len(shuffle_doc_words_list)):
     doc_words = shuffle_doc_words_list[doc_id]
-    words = doc_words.split()
+    words = hannanum.morphs(doc_words)
+    # words = doc_words.split()
     for word in words:
         word_id = word_id_map[word]
         doc_word_str = str(doc_id) + ',' + str(word_id)
@@ -479,7 +621,8 @@ for doc_id in range(len(shuffle_doc_words_list)):
 
 for i in range(len(shuffle_doc_words_list)):
     doc_words = shuffle_doc_words_list[i]
-    words = doc_words.split()
+    # words = doc_words.split()
+    words = hannanum.morphs(doc_words)
     doc_word_set = set()
     for word in words:
         if word in doc_word_set:
@@ -497,7 +640,7 @@ for i in range(len(shuffle_doc_words_list)):
         weight.append(freq * idf)
         doc_word_set.add(word)
 
-node_size = train_size + vocab_size + test_size
+node_size = train_size + vocab_size + test_size + val_size
 adj = sp.csr_matrix(
     (weight, (row, col)), shape=(node_size, node_size))
 
