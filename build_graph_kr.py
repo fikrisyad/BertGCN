@@ -43,9 +43,9 @@ title_path = '/home/lr/kwonjingun/D2/naver/dataset/processed/title/'
 content_path = '/home/lr/kwonjingun/D2/naver/dataset/processed/content/'
 both_path = '/home/lr/kwonjingun/D2/naver/dataset/processed/both'
 
-ftrain = open(title_path + 'train.source', 'r')
-fval = open(title_path + 'val.source', 'r')
-ftest = open(title_path + 'test.source', 'r')
+ftrain = open(title_path + 'train.source', 'r', encoding='utf-8')
+fval = open(title_path + 'val.source', 'r', encoding='utf-8')
+ftest = open(title_path + 'test.source', 'r', encoding='utf-8')
 
 lines = ftrain.readlines()
 for line in lines:
@@ -70,9 +70,9 @@ train_content_list = []
 val_content_list = []
 test_content_list = []
 
-ftrain = open(content_path + 'train.source', 'r')
-fval = open(content_path + 'val.source', 'r')
-ftest = open(content_path + 'test.source', 'r')
+ftrain = open(content_path + 'train.source', 'r', encoding='utf-8')
+fval = open(content_path + 'val.source', 'r', encoding='utf-8')
+ftest = open(content_path + 'test.source', 'r', encoding='utf-8')
 
 lines = ftrain.readlines()
 for line in lines:
@@ -101,9 +101,9 @@ val_label_list = []
 test_label_list = []
 doc_label_list = []
 
-ftrain = open(title_path + 'train.target', 'r')
-fval = open(title_path + 'val.target', 'r')
-ftest = open(title_path + 'test.target', 'r')
+ftrain = open(title_path + 'train.target', 'r', encoding='utf-8')
+fval = open(title_path + 'val.target', 'r', encoding='utf-8')
+ftest = open(title_path + 'test.target', 'r', encoding='utf-8')
 
 lines = ftrain.readlines()
 for line in lines:
@@ -141,7 +141,7 @@ print(train_ids)
 random.shuffle(train_ids)
 
 train_ids_str = '\n'.join(str(index) for index in train_ids)
-f = open('data/' + dataset + '.train.index', 'w')
+f = open('data/' + dataset + '.train.index', 'w', encoding='utf-8')
 f.write(train_ids_str)
 f.close()
 
@@ -153,7 +153,7 @@ print(val_ids)
 random.shuffle(val_ids)
 
 val_ids_str = '\n'.join(str(index) for index in val_ids)
-f = open('data/' + dataset + '.val.index', 'w')
+f = open('data/' + dataset + '.val.index', 'w', encoding='utf-8')
 f.write(val_ids_str)
 f.close()
 
@@ -165,7 +165,7 @@ print(test_ids)
 random.shuffle(test_ids)
 
 test_ids_str = '\n'.join(str(index) for index in test_ids)
-f = open('data/' + dataset + '.test.index', 'w')
+f = open('data/' + dataset + '.test.index', 'w', encoding='utf-8'
 f.write(test_ids_str)
 f.close()
 
@@ -184,15 +184,15 @@ shuffle_doc_name_str = '\n'.join(shuffle_doc_name_list)
 shuffle_doc_words_str = '\n'.join(shuffle_doc_words_list)
 shuffle_doc_label_str = '\n'.join(shuffle_doc_label_list)
 
-f = open('data/' + dataset + '_shuffle.txt', 'w')
+f = open('data/' + dataset + '_shuffle.txt', 'w', encoding='utf-8')
 f.write(shuffle_doc_name_str)
 f.close()
 
-f = open('data/corpus/' + dataset + '_shuffle.txt', 'w')
+f = open('data/corpus/' + dataset + '_shuffle.txt', 'w', encoding='utf-8')
 f.write(shuffle_doc_words_str)
 f.close()
 
-f = open('data/corpus/' + dataset + 'label_shuffle.txt', 'w')
+f = open('data/corpus/' + dataset + 'label_shuffle.txt', 'w', encoding='utf-8')
 f.write(shuffle_doc_label_str)
 f.close()
 
@@ -310,7 +310,7 @@ Word definitions end
 # label_list = list(label_set)
 
 label_list_str = '\n'.join(label_list)
-f = open('data/corpus/' + dataset + '_labels.txt', 'w')
+f = open('data/corpus/' + dataset + '_labels.txt', 'w', encoding='utf-8'
 f.write(label_list_str)
 f.close()
 
