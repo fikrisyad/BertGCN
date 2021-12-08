@@ -92,8 +92,6 @@ for line in lines:
     test_content_list.append(line.strip())
 ftest.close()
 
-
-
 # label list
 label_set = set()
 train_label_list = []
@@ -165,7 +163,7 @@ print(test_ids)
 random.shuffle(test_ids)
 
 test_ids_str = '\n'.join(str(index) for index in test_ids)
-f = open('data/' + dataset + '.test.index', 'w', encoding='utf-8'
+f = open('data/' + dataset + '.test.index', 'w', encoding='utf-8')
 f.write(test_ids_str)
 f.close()
 
@@ -310,7 +308,7 @@ Word definitions end
 # label_list = list(label_set)
 
 label_list_str = '\n'.join(label_list)
-f = open('data/corpus/' + dataset + '_labels.txt', 'w', encoding='utf-8'
+f = open('data/corpus/' + dataset + '_labels.txt', 'w', encoding='utf-8')
 f.write(label_list_str)
 f.close()
 
@@ -318,7 +316,7 @@ f.close()
 # slect 90% training set
 train_size = len(train_ids)
 # val_size = int(0.1 * train_size)
-val_size = len(val_size)
+val_size = len(val_ids)
 # real_train_size = train_size - val_size  # - int(0.5 * train_size)
 real_train_size = train_size
 # different training rates
@@ -369,7 +367,6 @@ for i in range(real_train_size):
 y = np.array(y)
 print(y)
 
-
 # vx: for validation
 val_size = len(val_ids)
 
@@ -404,7 +401,6 @@ for i in range(val_size):
     vy.append(one_hot)
 vy = np.array(vy)
 print(vy)
-
 
 # tx: feature vectors of test docs, no initial features
 test_size = len(test_ids)
@@ -463,7 +459,7 @@ row_allx = []
 col_allx = []
 data_allx = []
 
-for i in range(train_size + val_size): #following the original code
+for i in range(train_size + val_size):  # following the original code
     doc_vec = np.array([0.0 for k in range(word_embeddings_dim)])
     doc_words = shuffle_doc_words_list[i]
     # words = doc_words.split()
