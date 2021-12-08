@@ -59,7 +59,7 @@ for line in lines:
     doc_val_list.append(line.strip())
 fval.close()
 
-lines = ftrain.readlines()
+lines = ftest.readlines()
 for line in lines:
     doc_name_list.append(line.strip())
     doc_test_list.append(line.strip())
