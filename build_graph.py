@@ -502,6 +502,9 @@ for i in range(len(shuffle_doc_words_list)):
 node_size = train_size + vocab_size + test_size
 adj = sp.csr_matrix(
     (weight, (row, col)), shape=(node_size, node_size))
+print("sizes: ", train_size, vocab_size, test_size)
+print("Adjacency Matrix:", adj.toarray()[train_size:-test_size])
+print("--Adj Matrix--")
 
 # dump objects
 f = open("data/ind.{}.x".format(dataset), 'wb')
