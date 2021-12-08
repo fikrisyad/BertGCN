@@ -239,7 +239,7 @@ for i in range(vocab_size):
 
 vocab_str = '\n'.join(vocab)
 
-f = open('data/corpus/' + dataset + '_vocab.txt', 'w')
+f = open('data/corpus/' + dataset + '_vocab.txt', 'w', encoding='utf-8')
 f.write(vocab_str)
 f.close()
 
