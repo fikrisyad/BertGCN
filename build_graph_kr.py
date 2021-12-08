@@ -375,7 +375,7 @@ col_vx = []
 data_vx = []
 for i in range(val_size):
     doc_vec = np.array([0.0 for k in range(word_embeddings_dim)])
-    doc_words = shuffle_doc_words_list[i + val_size]
+    doc_words = shuffle_doc_words_list[i + train_size]
     words = hannanum.morphs(doc_words)
     doc_len = len(words)
 
@@ -394,7 +394,7 @@ vx = sp.csr_matrix((data_vx, (row_vx, col_vx)),
 
 vy = []
 for i in range(val_size):
-    label = shuffle_doc_label_list[i + val_size]  # should be replaced with shuffled_val_label_list
+    label = shuffle_doc_label_list[i + train_size]  # should be replaced with shuffled_val_label_list
     one_hot = [0 for l in range(len(label_list))]
     label_index = label_list.index(label)
     one_hot[label_index] = 1
