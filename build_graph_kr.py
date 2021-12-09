@@ -5,6 +5,7 @@ import pickle as pkl
 import networkx as nx
 import scipy.sparse as sp
 from konlpy.tag import Hannanum
+from konlpy.tag import Komoran
 from utils import loadWord2Vec, clean_str
 from math import log
 from sklearn import svm
@@ -48,9 +49,12 @@ fval = open(title_path + 'val.source', 'r', encoding='utf-8')
 ftest = open(title_path + 'test.source', 'r', encoding='utf-8')
 
 lines = ftrain.readlines()
+counter = 0
 for line in lines:
-    doc_name_list.append(line.strip())
-    doc_train_list.append(line.strip())
+    if counter < 100:
+        counter += 1
+        doc_name_list.append(line.strip())
+        doc_train_list.append(line.strip())
 ftrain.close()
 
 lines = fval.readlines()
@@ -75,21 +79,24 @@ fval = open(content_path + 'val.source', 'r', encoding='utf-8')
 ftest = open(content_path + 'test.source', 'r', encoding='utf-8')
 
 lines = ftrain.readlines()
+counter = 0
 for line in lines:
-    doc_content_list.append(line.strip())
-    train_content_list.append(line.strip())
+    if counter < 100:
+        counter += 1
+        doc_content_list.append(line)
+        train_content_list.append(line)
 ftrain.close()
 
 lines = fval.readlines()
 for line in lines:
-    doc_content_list.append(line.strip())
-    val_content_list.append(line.strip())
+    doc_content_list.append(line)
+    val_content_list.append(line)
 fval.close()
 
 lines = ftest.readlines()
 for line in lines:
-    doc_content_list.append(line.strip())
-    test_content_list.append(line.strip())
+    doc_content_list.append(line)
+    test_content_list.append(line)
 ftest.close()
 
 # label list
@@ -104,11 +111,14 @@ fval = open(title_path + 'val.target', 'r', encoding='utf-8')
 ftest = open(title_path + 'test.target', 'r', encoding='utf-8')
 
 lines = ftrain.readlines()
+counter = 0
 for line in lines:
-    temp = line.split(">")
-    label_set.add(temp[0])
-    train_label_list.append(temp[0])
-    doc_label_list.append(temp[0])
+    if counter < 100:
+        counter += 1
+        temp = line.split(">")
+        label_set.add(temp[0])
+        train_label_list.append(temp[0])
+        doc_label_list.append(temp[0])
 ftrain.close()
 
 lines = fval.readlines()
@@ -176,6 +186,11 @@ shuffle_doc_words_list = []
 shuffle_doc_label_list = []
 for idx in ids:
     shuffle_doc_name_list.append(doc_name_list[int(idx)])
+    if len(doc_content_list[int(idx)]) < 1:
+        print("DEBUG doc_content_list")
+        print(doc_content_list[int(idx)])
+        print("title", str(doc_name_list[int(idx)]))
+        exit()
     shuffle_doc_words_list.append(doc_content_list[int(idx)])
     shuffle_doc_label_list.append(doc_label_list[int(idx)])
 shuffle_doc_name_str = '\n'.join(shuffle_doc_name_list)
@@ -198,6 +213,7 @@ f.close()
 word_freq = {}
 word_set = set()
 hannanum = Hannanum()
+komoran = Komoran()
 for doc_words in shuffle_doc_words_list:
     # words = doc_words.split()
     words = hannanum.morphs(doc_words)
@@ -378,6 +394,9 @@ for i in range(val_size):
     doc_words = shuffle_doc_words_list[i + train_size]
     words = hannanum.morphs(doc_words)
     doc_len = len(words)
+    if doc_len <= 0:
+        print("doc_words:", doc_words)
+        print("doc_len:", doc_len)
 
     for word in words:
         if word in word_vector_map:
@@ -385,7 +404,7 @@ for i in range(val_size):
             doc_vec = doc_vec + np.array(word_vector)
 
     for j in range(word_embeddings_dim):
-        col_vx.append(i)
+        row_vx.append(i)
         col_vx.append(j)
         data_vx.append(doc_vec[j] / doc_len)
 
@@ -607,7 +626,10 @@ for doc_id in range(len(shuffle_doc_words_list)):
     doc_words = shuffle_doc_words_list[doc_id]
     words = hannanum.morphs(doc_words)
     # words = doc_words.split()
+    print("DEBUG word_id_map", len(word_id_map))
+    print("DEBUG len vocab", len(vocab))
     for word in words:
+        print("DEBUG word", word)
         word_id = word_id_map[word]
         doc_word_str = str(doc_id) + ',' + str(word_id)
         if doc_word_str in doc_word_freq:
