@@ -1,5 +1,7 @@
 import os
 import random
+
+import konlpy
 import numpy as np
 import pickle as pkl
 import networkx as nx
@@ -216,7 +218,8 @@ hannanum = Hannanum()
 komoran = Komoran()
 for doc_words in shuffle_doc_words_list:
     # words = doc_words.split()
-    words = hannanum.morphs(doc_words)
+    # words = hannanum.morphs(doc_words)
+    words = komoran.morphs(doc_words)
     for word in words:
         word_set.add(word)
         if word in word_freq:
@@ -232,7 +235,8 @@ word_doc_list = {}
 for i in range(len(shuffle_doc_words_list)):
     doc_words = shuffle_doc_words_list[i]
     # words = doc_words.split()
-    words = hannanum.morphs(doc_words)
+    # words = hannanum.morphs(doc_words)
+    words = komoran.morphs(doc_words)
     appeared = set()
     for word in words:
         if word in appeared:
@@ -351,7 +355,8 @@ for i in range(real_train_size):
     doc_vec = np.array([0.0 for k in range(word_embeddings_dim)])
     doc_words = shuffle_doc_words_list[i]
     # words = doc_words.split()
-    words = hannanum.morphs(doc_words)
+    # words = hannanum.morphs(doc_words)
+    words = konlpy.morphs(doc_words)
     doc_len = len(words)
     for word in words:
         if word in word_vector_map:
@@ -392,7 +397,8 @@ data_vx = []
 for i in range(val_size):
     doc_vec = np.array([0.0 for k in range(word_embeddings_dim)])
     doc_words = shuffle_doc_words_list[i + train_size]
-    words = hannanum.morphs(doc_words)
+    # words = hannanum.morphs(doc_words)
+    words = komoran.morphs(doc_words)
     doc_len = len(words)
     if doc_len <= 0:
         print("doc_words:", doc_words)
@@ -431,7 +437,8 @@ for i in range(test_size):
     doc_vec = np.array([0.0 for k in range(word_embeddings_dim)])
     doc_words = shuffle_doc_words_list[i + train_size + val_size]
     # words = doc_words.split()
-    words = hannanum.morphs(doc_words)
+    # words = hannanum.morphs(doc_words)
+    words = komoran.morphs(doc_words)
     doc_len = len(words)
     for word in words:
         if word in word_vector_map:
@@ -482,7 +489,8 @@ for i in range(train_size + val_size):  # following the original code
     doc_vec = np.array([0.0 for k in range(word_embeddings_dim)])
     doc_words = shuffle_doc_words_list[i]
     # words = doc_words.split()
-    words = hannanum.morphs(doc_words)
+    # words = hannanum.morphs(doc_words)
+    words = komoran.morphs(doc_words)
     doc_len = len(words)
     for word in words:
         if word in word_vector_map:
@@ -536,7 +544,8 @@ windows = []
 
 for doc_words in shuffle_doc_words_list:
     # words = doc_words.split()
-    words = hannanum.morphs(doc_words)
+    # words = hannanum.morphs(doc_words)
+    words = komoran.morphs(doc_words)
     length = len(words)
     if length <= window_size:
         windows.append(words)
@@ -624,7 +633,8 @@ doc_word_freq = {}
 
 for doc_id in range(len(shuffle_doc_words_list)):
     doc_words = shuffle_doc_words_list[doc_id]
-    words = hannanum.morphs(doc_words)
+    # words = hannanum.morphs(doc_words)
+    words = komoran.morphs(doc_words)
     # words = doc_words.split()
     print("DEBUG word_id_map", len(word_id_map))
     print("DEBUG len vocab", len(vocab))
@@ -640,7 +650,8 @@ for doc_id in range(len(shuffle_doc_words_list)):
 for i in range(len(shuffle_doc_words_list)):
     doc_words = shuffle_doc_words_list[i]
     # words = doc_words.split()
-    words = hannanum.morphs(doc_words)
+    # words = hannanum.morphs(doc_words)
+    words = komoran.morphs(doc_words)
     doc_word_set = set()
     for word in words:
         if word in doc_word_set:
