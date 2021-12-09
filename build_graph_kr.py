@@ -53,10 +53,9 @@ ftest = open(title_path + 'test.source', 'r', encoding='utf-8')
 lines = ftrain.readlines()
 counter = 0
 for line in lines:
-    if counter < 100:
-        counter += 1
-        doc_name_list.append(line.strip())
-        doc_train_list.append(line.strip())
+    counter += 1
+    doc_name_list.append(line.strip())
+    doc_train_list.append(line.strip())
 ftrain.close()
 
 lines = fval.readlines()
@@ -83,10 +82,9 @@ ftest = open(content_path + 'test.source', 'r', encoding='utf-8')
 lines = ftrain.readlines()
 counter = 0
 for line in lines:
-    if counter < 100:
-        counter += 1
-        doc_content_list.append(line)
-        train_content_list.append(line)
+    counter += 1
+    doc_content_list.append(line)
+    train_content_list.append(line)
 ftrain.close()
 
 lines = fval.readlines()
@@ -115,12 +113,11 @@ ftest = open(title_path + 'test.target', 'r', encoding='utf-8')
 lines = ftrain.readlines()
 counter = 0
 for line in lines:
-    if counter < 100:
-        counter += 1
-        temp = line.split(">")
-        label_set.add(temp[0])
-        train_label_list.append(temp[0])
-        doc_label_list.append(temp[0])
+    counter += 1
+    temp = line.split(">")
+    label_set.add(temp[0])
+    train_label_list.append(temp[0])
+    doc_label_list.append(temp[0])
 ftrain.close()
 
 lines = fval.readlines()
@@ -400,9 +397,9 @@ for i in range(val_size):
     # words = hannanum.morphs(doc_words)
     words = komoran.morphs(doc_words)
     doc_len = len(words)
-    if doc_len <= 0:
-        print("doc_words:", doc_words)
-        print("doc_len:", doc_len)
+    # if doc_len <= 0:
+    #     print("doc_words:", doc_words)
+    #     print("doc_len:", doc_len)
 
     for word in words:
         if word in word_vector_map:
@@ -636,10 +633,10 @@ for doc_id in range(len(shuffle_doc_words_list)):
     # words = hannanum.morphs(doc_words)
     words = komoran.morphs(doc_words)
     # words = doc_words.split()
-    print("DEBUG word_id_map", len(word_id_map))
-    print("DEBUG len vocab", len(vocab))
+    # print("DEBUG word_id_map", len(word_id_map))
+    # print("DEBUG len vocab", len(vocab))
     for word in words:
-        print("DEBUG word", word)
+        # print("DEBUG word", word)
         word_id = word_id_map[word]
         doc_word_str = str(doc_id) + ',' + str(word_id)
         if doc_word_str in doc_word_freq:
