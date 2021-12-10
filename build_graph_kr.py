@@ -42,62 +42,92 @@ doc_train_list = []  # train documents title name
 doc_test_list = []  # test documents title title
 doc_val_list = []  # val documents title title
 
-title_path = '/home/lr/kwonjingun/D2/naver/dataset/processed/title/'
-content_path = '/home/lr/kwonjingun/D2/naver/dataset/processed/content/'
-both_path = '/home/lr/kwonjingun/D2/naver/dataset/processed/both'
-
-ftrain = open(title_path + 'train.source', 'r', encoding='utf-8')
-fval = open(title_path + 'val.source', 'r', encoding='utf-8')
-ftest = open(title_path + 'test.source', 'r', encoding='utf-8')
-
-lines = ftrain.readlines()
-counter = 0
-for line in lines:
-    counter += 1
-    doc_name_list.append(line.strip())
-    doc_train_list.append(line.strip())
-ftrain.close()
-
-lines = fval.readlines()
-for line in lines:
-    doc_name_list.append(line.strip())
-    doc_val_list.append(line.strip())
-fval.close()
-
-lines = ftest.readlines()
-for line in lines:
-    doc_name_list.append(line.strip())
-    doc_test_list.append(line.strip())
-ftest.close()
-
 doc_content_list = []
 train_content_list = []
 val_content_list = []
 test_content_list = []
 
-ftrain = open(content_path + 'train.source', 'r', encoding='utf-8')
-fval = open(content_path + 'val.source', 'r', encoding='utf-8')
-ftest = open(content_path + 'test.source', 'r', encoding='utf-8')
+title_path = '/home/lr/kwonjingun/D2/naver/dataset/processed/title/'
+content_path = '/home/lr/kwonjingun/D2/naver/dataset/processed/content/'
+both_path = '/home/lr/kwonjingun/D2/naver/dataset/processed/both'
+
+ftrain = open(both_path + 'train.source', 'r', encoding='utf-8')
+fval = open(both_path + 'val.source', 'r', encoding='utf-8')
+ftest = open(both_path + 'test.source', 'r', encoding='utf-8')
 
 lines = ftrain.readlines()
-counter = 0
-for line in lines:
-    counter += 1
-    doc_content_list.append(line)
-    train_content_list.append(line)
+source_train_idx = []
+source_val_idx = []
+source_test_idx = []
+for i, line in enumerate(lines):
+    line = line.strip()
+    title, content = line.split('</s>')
+    if len(content) > 0:
+        source_train_idx.append(i)
+        doc_name_list.append(title)
+        doc_train_list.append(title)
+        doc_content_list.append(content)
+        train_content_list.append(content)
+    # doc_name_list.append(line.strip())
+    # doc_train_list.append(line.strip())
 ftrain.close()
 
 lines = fval.readlines()
-for line in lines:
-    doc_content_list.append(line)
-    val_content_list.append(line)
+for i, line in enumerate(lines):
+    line = line.strip()
+    title, content = line.split('</s>')
+    if len(content) > 0:
+        source_val_idx.append(i)
+        doc_name_list.append(title)
+        doc_val_list.append(title)
+        doc_content_list.append(content)
+        val_content_list.append(content)
+    # doc_name_list.append(line.strip())
+    # doc_val_list.append(line.strip())
 fval.close()
 
 lines = ftest.readlines()
-for line in lines:
-    doc_content_list.append(line)
-    test_content_list.append(line)
+for i, line in enumerate(lines):
+    line = line.strip()
+    title, content = line.split('</s>')
+    if len(content) > 0:
+        source_test_idx.append(i)
+        doc_name_list.append(title)
+        doc_test_list.append(title)
+        doc_content_list.append(content)
+        test_content_list.append(content)
+    # doc_name_list.append(line.strip())
+    # doc_test_list.append(line.strip())
 ftest.close()
+
+# doc_content_list = []
+# train_content_list = []
+# val_content_list = []
+# test_content_list = []
+
+# ftrain = open(content_path + 'train.source', 'r', encoding='utf-8')
+# fval = open(content_path + 'val.source', 'r', encoding='utf-8')
+# ftest = open(content_path + 'test.source', 'r', encoding='utf-8')
+
+# lines = ftrain.readlines()
+# counter = 0
+# for line in lines:
+#     counter += 1
+#     doc_content_list.append(line.strip())
+#     train_content_list.append(line.strip())
+# ftrain.close()
+#
+# lines = fval.readlines()
+# for line in lines:
+#     doc_content_list.append(line.strip())
+#     val_content_list.append(line.strip())
+# fval.close()
+#
+# lines = ftest.readlines()
+# for line in lines:
+#     doc_content_list.append(line.strip())
+#     test_content_list.append(line.strip())
+# ftest.close()
 
 # label list
 label_set = set()
@@ -112,7 +142,7 @@ ftest = open(title_path + 'test.target', 'r', encoding='utf-8')
 
 lines = ftrain.readlines()
 counter = 0
-for line in lines:
+for line in list(map(lines.__getitem__, source_train_idx)):
     counter += 1
     temp = line.split(">")
     label_set.add(temp[0])
@@ -121,7 +151,7 @@ for line in lines:
 ftrain.close()
 
 lines = fval.readlines()
-for line in lines:
+for line in list(map(lines.__getitem__, source_val_idx)):
     temp = line.split(">")
     label_set.add(temp[0])
     val_label_list.append(temp[0])
@@ -129,7 +159,7 @@ for line in lines:
 fval.close()
 
 lines = ftest.readlines()
-for line in lines:
+for line in list(map(lines.__getitem__, source_test_idx)):
     temp = line.split(">")
     label_set.add(temp[0])
     test_label_list.append(temp[0])
