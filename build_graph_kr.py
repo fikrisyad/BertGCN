@@ -49,7 +49,7 @@ test_content_list = []
 
 title_path = '/home/lr/kwonjingun/D2/naver/dataset/processed/title/'
 content_path = '/home/lr/kwonjingun/D2/naver/dataset/processed/content/'
-both_path = '/home/lr/kwonjingun/D2/naver/dataset/processed/both'
+both_path = '/home/lr/kwonjingun/D2/naver/dataset/processed/both/'
 
 ftrain = open(both_path + 'train.source', 'r', encoding='utf-8')
 fval = open(both_path + 'val.source', 'r', encoding='utf-8')
