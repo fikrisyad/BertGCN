@@ -83,20 +83,20 @@ lines = ftrain.readlines()
 counter = 0
 for line in lines:
     counter += 1
-    doc_content_list.append(line)
-    train_content_list.append(line)
+    doc_content_list.append(line.strip())
+    train_content_list.append(line.strip())
 ftrain.close()
 
 lines = fval.readlines()
 for line in lines:
-    doc_content_list.append(line)
-    val_content_list.append(line)
+    doc_content_list.append(line.strip())
+    val_content_list.append(line.strip())
 fval.close()
 
 lines = ftest.readlines()
 for line in lines:
-    doc_content_list.append(line)
-    test_content_list.append(line)
+    doc_content_list.append(line.strip())
+    test_content_list.append(line.strip())
 ftest.close()
 
 # label list
@@ -115,25 +115,25 @@ counter = 0
 for line in lines:
     counter += 1
     temp = line.split(">")
-    label_set.add(temp[0])
-    train_label_list.append(temp[0])
-    doc_label_list.append(temp[0])
+    label_set.add(temp[0].strip())
+    train_label_list.append(temp[0].strip())
+    doc_label_list.append(temp[0].strip())
 ftrain.close()
 
 lines = fval.readlines()
 for line in lines:
     temp = line.split(">")
-    label_set.add(temp[0])
-    val_label_list.append(temp[0])
-    doc_label_list.append(temp[0])
+    label_set.add(temp[0].strip())
+    val_label_list.append(temp[0].strip())
+    doc_label_list.append(temp[0].strip())
 fval.close()
 
 lines = ftest.readlines()
 for line in lines:
     temp = line.split(">")
-    label_set.add(temp[0])
-    test_label_list.append(temp[0])
-    doc_label_list.append(temp[0])
+    label_set.add(temp[0].strip())
+    test_label_list.append(temp[0].strip())
+    doc_label_list.append(temp[0].strip())
 ftest.close()
 
 label_list = list(label_set)
