@@ -62,7 +62,8 @@ logger.info(str(args))
 logger.info('checkpoints will be saved in {}'.format(ckpt_dir))
 
 # Data Preprocess
-adj, features, y_train, y_val, y_test, train_mask, val_mask, test_mask, train_size, test_size = load_corpus(dataset)
+adj, features, y_train, y_val, y_test, train_mask, val_mask, test_mask, \
+train_size, test_size = load_corpus_multilingual(dataset)
 '''
 y_train, y_val, y_test: n*c matrices 
 train_mask, val_mask, test_mask: n-d bool array
