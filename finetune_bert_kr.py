@@ -101,12 +101,12 @@ input_ids, attention_mask = {}, {}
 input_ids_, attention_mask_ = encode_input(text, model.tokenizer)
 
 # create train/test/val datasets and dataloaders
-input_ids['train'], input_ids['val'], input_ids['test'] = input_ids_[:nb_train], input_ids_[
-                                                                                 nb_train:nb_train + nb_val], input_ids_[
-                                                                                                              -nb_test:]
-attention_mask['train'], attention_mask['val'], attention_mask['test'] = attention_mask_[:nb_train], attention_mask_[
-                                                                                                     nb_train:nb_train + nb_val], attention_mask_[
-                                                                                                                                  -nb_test:]
+input_ids['train'], input_ids['val'], input_ids['test'] = input_ids_[:nb_train], \
+                                                          input_ids_[nb_train:nb_train + nb_val], \
+                                                          input_ids_[-nb_test:]
+attention_mask['train'], attention_mask['val'], attention_mask['test'] = attention_mask_[:nb_train], \
+                                                                         attention_mask_[nb_train:nb_train + nb_val], \
+                                                                         attention_mask_[-nb_test:]
 
 datasets = {}
 loader = {}
