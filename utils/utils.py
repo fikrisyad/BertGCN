@@ -158,6 +158,8 @@ def load_corpus(dataset_str):
     val_size = train_size - x.shape[0]
     test_size = tx.shape[0]
 
+    print("DEBUG load_corpus - val_size: {}".format(val_size)) 
+
     idx_train = range(len(y))
     idx_val = range(len(y), len(y) + val_size)
     idx_test = range(allx.shape[0], allx.shape[0] + test_size)

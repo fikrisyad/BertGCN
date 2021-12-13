@@ -108,6 +108,8 @@ attention_mask['train'], attention_mask['val'], attention_mask['test'] = attenti
                                                                          attention_mask_[nb_train:nb_train + nb_val], \
                                                                          attention_mask_[-nb_test:]
 
+print("DEBUG: ids len", len(input_ids['train']), len(input_ids['val']), len(input_ids['test']))
+
 datasets = {}
 loader = {}
 for split in ['train', 'val', 'test']:
