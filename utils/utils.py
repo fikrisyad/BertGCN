@@ -218,8 +218,12 @@ def load_corpus_multilingual(dataset_str):
         "data/{}.train.index".format(dataset_str))
     train_size = len(train_idx_orig)
 
+    val_idx_orig = parse_index_file(
+        "data/{}.val.index".format(dataset_str))
+    val_size = len(val_idx_orig)
+
     # val_size = train_size - x.shape[0]
-    val_size = allx.shape[0] - train_size
+    train_size = train_size + val_size
     test_size = tx.shape[0]
 
     idx_train = range(len(y))
