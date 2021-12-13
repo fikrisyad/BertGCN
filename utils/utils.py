@@ -245,7 +245,8 @@ def load_corpus_multilingual(dataset_str):
 
     adj = adj + adj.T.multiply(adj.T > adj) - adj.multiply(adj.T > adj)
 
-    return adj, features, y_train, y_val, y_test, train_mask, val_mask, test_mask, train_size, test_size
+    # return adj, features, y_train, y_val, y_test, train_mask, val_mask, test_mask, train_size, test_size
+    return adj, features, y_train, y_test, y_val, train_mask, test_mask, val_mask, train_size, val_size # debugging
 
 
 def sparse_to_tuple(sparse_mx):
