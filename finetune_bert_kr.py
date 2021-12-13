@@ -12,16 +12,17 @@ from datetime import datetime
 from sklearn.metrics import accuracy_score
 import argparse, shutil, logging
 from torch.optim import lr_scheduler
-from model import BertClassifier
+from model import BertClassifierMultilingual
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--max_length', type=int, default=128, help='the input length for bert')
 parser.add_argument('--batch_size', type=int, default=128)
 parser.add_argument('--nb_epochs', type=int, default=60)
 parser.add_argument('--bert_lr', type=float, default=1e-4)
-parser.add_argument('--dataset', default='20ng', choices=['20ng', 'R8', 'R52', 'ohsumed', 'mr'])
-parser.add_argument('--bert_init', type=str, default='roberta-base',
-                    choices=['roberta-base', 'roberta-large', 'bert-base-uncased', 'bert-large-uncased'])
+parser.add_argument('--dataset', default='korean', choices=['20ng', 'R8', 'R52', 'ohsumed', 'mr', 'korean'])
+parser.add_argument('--bert_init', type=str, default='bert-base-multilingual-cased',
+                    choices=['roberta-base', 'roberta-large', 'bert-base-uncased', 'bert-large-uncased',
+                             'bert-base-multilingual-cased'])
 parser.add_argument('--checkpoint_dir', default=None,
                     help='checkpoint directory, [bert_init]_[dataset] if not specified')
 
@@ -75,7 +76,7 @@ nb_word = nb_node - nb_train - nb_val - nb_test
 nb_class = y_train.shape[1]
 
 # instantiate model according to class number
-model = BertClassifier(pretrained_model=bert_init, nb_class=nb_class)
+model = BertClassifierMultilingual(pretrained_model=bert_init, nb_class=nb_class)
 
 # transform one-hot label to class ID for pytorch computation
 y = th.LongTensor((y_train + y_val + y_test).argmax(axis=1))
