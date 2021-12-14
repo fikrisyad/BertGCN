@@ -62,6 +62,8 @@ logger.info(str(args))
 logger.info('checkpoints will be saved in {}'.format(ckpt_dir))
 
 # Data Preprocess
+# adj, features, y_train, y_val, y_test, train_mask, val_mask, test_mask, \
+# train_size, test_size = load_corpus_multilingual(dataset)
 adj, features, y_train, y_val, y_test, train_mask, val_mask, test_mask, \
 train_size, test_size = load_corpus_multilingual(dataset)
 '''
@@ -108,6 +110,20 @@ input_ids['train'], input_ids['val'], input_ids['test'] = input_ids_[:nb_train],
 attention_mask['train'], attention_mask['val'], attention_mask['test'] = attention_mask_[:nb_train], \
                                                                          attention_mask_[nb_train:nb_train + nb_val], \
                                                                          attention_mask_[-nb_test:]
+
+# debugging, swapping val and test
+print("DEBUGGING: swapping val and test ...")
+temp_ids = input_ids['val']
+input_ids['val'] = input_ids['test']
+input_ids['test'] = temp_ids
+
+temp_mask = attention_mask['val']
+attention_mask['val'] = attention_mask['test']
+attention_mask['test'] = temp_mask
+
+temp_label = label['val']
+label['val'] = label['test']
+label['test'] = temp_label
 
 print("DEBUG: ids len", len(input_ids['train']), len(input_ids['val']), len(input_ids['test']))
 
