@@ -62,8 +62,8 @@ source_test_idx = []
 for i, line in enumerate(lines):
     line = line.strip()
     title, content = line.split('</s>')
+    source_train_idx.append(i)
     if len(content) > 0:
-        source_train_idx.append(i)
         doc_name_list.append(title)
         doc_train_list.append(title)
         doc_content_list.append(content)
@@ -76,8 +76,8 @@ lines = fval.readlines()
 for i, line in enumerate(lines):
     line = line.strip()
     title, content = line.split('</s>')
+    source_val_idx.append(i)
     if len(content) > 0:
-        source_val_idx.append(i)
         doc_name_list.append(title)
         doc_val_list.append(title)
         doc_content_list.append(content)
@@ -90,8 +90,8 @@ lines = ftest.readlines()
 for i, line in enumerate(lines):
     line = line.strip()
     title, content = line.split('</s>')
+    source_test_idx.append(i)
     if len(content) > 0:
-        source_test_idx.append(i)
         doc_name_list.append(title)
         doc_test_list.append(title)
         doc_content_list.append(content)
