@@ -62,8 +62,8 @@ source_test_idx = []
 for i, line in enumerate(lines):
     line = line.strip()
     title, content = line.split('</s>')
-    source_train_idx.append(i)
     if len(content) > 0:
+        source_train_idx.append(i)
         doc_name_list.append(title)
         doc_train_list.append(title)
         doc_content_list.append(content)
@@ -76,8 +76,8 @@ lines = fval.readlines()
 for i, line in enumerate(lines):
     line = line.strip()
     title, content = line.split('</s>')
-    source_val_idx.append(i)
     if len(content) > 0:
+        source_val_idx.append(i)
         doc_name_list.append(title)
         doc_val_list.append(title)
         doc_content_list.append(content)
@@ -90,8 +90,8 @@ lines = ftest.readlines()
 for i, line in enumerate(lines):
     line = line.strip()
     title, content = line.split('</s>')
-    source_test_idx.append(i)
     if len(content) > 0:
+        source_test_idx.append(i)
         doc_name_list.append(title)
         doc_test_list.append(title)
         doc_content_list.append(content)
@@ -136,34 +136,35 @@ val_label_list = []
 test_label_list = []
 doc_label_list = []
 
-ftrain = open(title_path + 'train.target', 'r', encoding='utf-8')
-fval = open(title_path + 'val.target', 'r', encoding='utf-8')
-ftest = open(title_path + 'test.target', 'r', encoding='utf-8')
+ftrain = open(both_path + 'train.target', 'r', encoding='utf-8')
+fval = open(both_path + 'val.target', 'r', encoding='utf-8')
+ftest = open(both_path + 'test.target', 'r', encoding='utf-8')
 
 lines = ftrain.readlines()
-counter = 0
-for line in list(map(lines.__getitem__, source_train_idx)):
-    counter += 1
-    temp = line.split(">")
-    label_set.add(temp[0].strip())
-    train_label_list.append(temp[0].strip())
-    doc_label_list.append(temp[0].strip())
+for i, line in enumerate(lines):
+    if i in source_train_idx:
+        temp = line.split(">")
+        label_set.add(temp[0].strip())
+        train_label_list.append(temp[0].strip())
+        doc_label_list.append(temp[0].strip())
 ftrain.close()
 
 lines = fval.readlines()
-for line in list(map(lines.__getitem__, source_val_idx)):
-    temp = line.split(">")
-    label_set.add(temp[0].strip())
-    val_label_list.append(temp[0].strip())
-    doc_label_list.append(temp[0].strip())
+for i, line in enumerate(lines):
+    if i in source_val_idx:
+        temp = line.split(">")
+        label_set.add(temp[0].strip())
+        val_label_list.append(temp[0].strip())
+        doc_label_list.append(temp[0].strip())
 fval.close()
 
 lines = ftest.readlines()
-for line in list(map(lines.__getitem__, source_test_idx)):
-    temp = line.split(">")
-    label_set.add(temp[0].strip())
-    test_label_list.append(temp[0].strip())
-    doc_label_list.append(temp[0].strip())
+for i, line in enumerate(lines):
+    if i in source_test_idx:
+        temp = line.split(">")
+        label_set.add(temp[0].strip())
+        test_label_list.append(temp[0].strip())
+        doc_label_list.append(temp[0].strip())
 ftest.close()
 
 label_list = list(label_set)
@@ -206,8 +207,8 @@ f = open('data/' + dataset + '.test.index', 'w', encoding='utf-8')
 f.write(test_ids_str)
 f.close()
 
-ids = train_ids + test_ids + val_ids
-print(ids)
+ids = train_ids + val_ids + test_ids
+# print(ids)
 print(len(ids))
 
 shuffle_doc_name_list = []
@@ -241,7 +242,7 @@ f.close()
 # build vocab
 word_freq = {}
 word_set = set()
-hannanum = Hannanum()
+# hannanum = Hannanum()
 komoran = Komoran()
 for doc_words in shuffle_doc_words_list:
     # words = doc_words.split()
