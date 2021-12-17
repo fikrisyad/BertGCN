@@ -532,7 +532,7 @@ for i in range(train_size + val_size):  # following the original code
         data_allx.append(doc_vec[j] / doc_len)  # doc_vec[j]/doc_len
 for i in range(vocab_size):
     for j in range(word_embeddings_dim):
-        row_allx.append(int(i + train_size))
+        row_allx.append(int(i + train_size + val_size))
         col_allx.append(j)
         data_allx.append(word_vectors.item((i, j)))
 
@@ -541,7 +541,7 @@ col_allx = np.array(col_allx)
 data_allx = np.array(data_allx)
 
 allx = sp.csr_matrix(
-    (data_allx, (row_allx, col_allx)), shape=(train_size + vocab_size, word_embeddings_dim))
+    (data_allx, (row_allx, col_allx)), shape=(train_size + val_size + vocab_size, word_embeddings_dim))
 
 ally = []
 for i in range(train_size + val_size):
@@ -697,7 +697,7 @@ for i in range(len(shuffle_doc_words_list)):
         weight.append(freq * idf)
         doc_word_set.add(word)
 
-node_size = train_size + vocab_size + test_size + val_size
+node_size = train_size + val_size + vocab_size + test_size
 adj = sp.csr_matrix(
     (weight, (row, col)), shape=(node_size, node_size))
 
