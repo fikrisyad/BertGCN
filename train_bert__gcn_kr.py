@@ -112,7 +112,7 @@ if pretrained_bert_ckpt is not None:
 
 # load documents and compute input encodings
 corpse_file = './data/corpus/' + dataset + '_shuffle.txt'
-with open(corpse_file, 'r') as f:
+with open(corpse_file, 'r', encoding='utf-8') as f:
     text = f.read()
     text = text.replace('\\', '')
     text = text.split('\n')
