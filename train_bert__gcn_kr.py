@@ -26,7 +26,7 @@ parser.add_argument('--bert_init', type=str, default='bert-base-multilingual-cas
                     choices=['roberta-base', 'roberta-large', 'bert-base-uncased',
                              'bert-large-uncased', 'bert-base-multilingual-cased'])
 parser.add_argument('--pretrained_bert_ckpt', default=None)
-parser.add_argument('--dataset', default='20ng', choices=['20ng', 'R8', 'R52', 'ohsumed', 'mr'])
+parser.add_argument('--dataset', default='korean', choices=['20ng', 'R8', 'R52', 'ohsumed', 'mr', 'korean'])
 parser.add_argument('--checkpoint_dir', default=None,
                     help='checkpoint directory, [bert_init]_[gcn_model]_[dataset] if not specified')
 parser.add_argument('--gcn_model', type=str, default='gcn', choices=['gcn', 'gat'])
