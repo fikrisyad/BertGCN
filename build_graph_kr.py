@@ -637,8 +637,8 @@ for key in word_pair_count:
               (1.0 * word_freq_i * word_freq_j / (num_window * num_window)))
     if pmi <= 0:
         continue
-    row.append(train_size + i)
-    col.append(train_size + j)
+    row.append(train_size + val_size + i)
+    col.append(train_size + val_size + j)
     weight.append(pmi)
 
 # word vector cosine similarity as weights
@@ -687,11 +687,11 @@ for i in range(len(shuffle_doc_words_list)):
         j = word_id_map[word]
         key = str(i) + ',' + str(j)
         freq = doc_word_freq[key]
-        if i < train_size:
+        if i < (train_size + val_size):
             row.append(i)
         else:
             row.append(i + vocab_size)
-        col.append(train_size + j)
+        col.append(train_size + val_size + j)
         idf = log(1.0 * len(shuffle_doc_words_list) /
                   word_doc_freq[vocab[j]])
         weight.append(freq * idf)
