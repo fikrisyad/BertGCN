@@ -35,8 +35,8 @@ for line in lines:
     for topic in topics:
         counter[topic] += 1
 
-    top_topic = counter.most_common()
-    if top_topic[1] > 1:
+    top_topic = counter.most_common(1)
+    if top_topic[0][1] > 1:
         temp = title + "\t" + document + "\t" + top_topic[0]
         temp_source = title + "\t" + document
         temp_target = top_topic[0]
