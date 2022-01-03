@@ -240,7 +240,7 @@ word_freq = {}
 word_set = set()
 mecab_tagger = MeCab.Tagger("-Owakati")
 for doc_words in shuffle_doc_words_list:
-    words = mecab_tagger.parse(words).split()
+    words = mecab_tagger.parse(doc_words).split()
     for word in words:
         word_set.add(word)
         if word in word_freq:
@@ -255,7 +255,7 @@ word_doc_list = {}
 
 for i in range(len(shuffle_doc_words_list)):
     doc_words = shuffle_doc_words_list[i]
-    words = mecab_tagger.parse(words).split()
+    words = mecab_tagger.parse(doc_words).split()
     appeared = set()
     for word in words:
         if word in appeared:
@@ -373,7 +373,7 @@ data_x = []
 for i in range(real_train_size):
     doc_vec = np.array([0.0 for k in range(word_embeddings_dim)])
     doc_words = shuffle_doc_words_list[i]
-    words = mecab_tagger.parse(words).split()
+    words = mecab_tagger.parse(doc_words).split()
     doc_len = len(words)
     for word in words:
         if word in word_vector_map:
@@ -452,7 +452,7 @@ data_tx = []
 for i in range(test_size):
     doc_vec = np.array([0.0 for k in range(word_embeddings_dim)])
     doc_words = shuffle_doc_words_list[i + train_size + val_size]
-    words = mecab_tagger.parse(words).split()
+    words = mecab_tagger.parse(doc_words).split()
     doc_len = len(words)
     for word in words:
         if word in word_vector_map:
@@ -502,7 +502,7 @@ data_allx = []
 for i in range(train_size + val_size):  # following the original code
     doc_vec = np.array([0.0 for k in range(word_embeddings_dim)])
     doc_words = shuffle_doc_words_list[i]
-    words = mecab_tagger.parse(words).split()
+    words = mecab_tagger.parse(doc_words).split()
     doc_len = len(words)
     for word in words:
         if word in word_vector_map:
@@ -555,7 +555,7 @@ window_size = 20
 windows = []
 
 for doc_words in shuffle_doc_words_list:
-    words = mecab_tagger.parse(words).split()
+    words = mecab_tagger.parse(doc_words).split()
     length = len(words)
     if length <= window_size:
         windows.append(words)
@@ -643,7 +643,7 @@ doc_word_freq = {}
 
 for doc_id in range(len(shuffle_doc_words_list)):
     doc_words = shuffle_doc_words_list[doc_id]
-    words = mecab_tagger.parse(words).split()
+    words = mecab_tagger.parse(doc_words).split()
     for word in words:
         # print("DEBUG word", word)
         word_id = word_id_map[word]
@@ -655,7 +655,7 @@ for doc_id in range(len(shuffle_doc_words_list)):
 
 for i in range(len(shuffle_doc_words_list)):
     doc_words = shuffle_doc_words_list[i]
-    words = mecab_tagger.parse(words).split()
+    words = mecab_tagger.parse(doc_words).split()
     doc_word_set = set()
     for word in words:
         if word in doc_word_set:
