@@ -112,18 +112,18 @@ attention_mask['train'], attention_mask['val'], attention_mask['test'] = attenti
                                                                          attention_mask_[-nb_test:]
 
 # debugging, swapping val and test
-print("DEBUGGING: swapping val and test ...")
-temp_ids = input_ids['val']
-input_ids['val'] = input_ids['test']
-input_ids['test'] = temp_ids
+# print("DEBUGGING: swapping val and test ...")
+# temp_ids = input_ids['val']
+# input_ids['val'] = input_ids['test']
+# input_ids['test'] = temp_ids
 
-temp_mask = attention_mask['val']
-attention_mask['val'] = attention_mask['test']
-attention_mask['test'] = temp_mask
+# temp_mask = attention_mask['val']
+# attention_mask['val'] = attention_mask['test']
+# attention_mask['test'] = temp_mask
 
-temp_label = label['val']
-label['val'] = label['test']
-label['test'] = temp_label
+# temp_label = label['val']
+# label['val'] = label['test']
+# label['test'] = temp_label
 
 print("DEBUG: ids len", len(input_ids['train']), len(input_ids['val']), len(input_ids['test']))
 
