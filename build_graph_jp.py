@@ -414,7 +414,7 @@ data_vx = []
 for i in range(val_size):
     doc_vec = np.array([0.0 for k in range(word_embeddings_dim)])
     doc_words = shuffle_doc_words_list[i + train_size]
-    words = mecab_tagger.parse(words).split()
+    words = mecab_tagger.parse(doc_words).split()
     doc_len = len(words)
     # if doc_len <= 0:
     #     print("doc_words:", doc_words)
