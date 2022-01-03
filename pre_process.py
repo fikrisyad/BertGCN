@@ -28,7 +28,7 @@ preprocessed_target = []
 
 for line in lines:
     counter = Counter()
-    title, document, topic1, topic2, topic3, topic4, topic5 = line.split('\t')
+    title, document, topic1, topic2, topic3, topic4, topic5, batch_id = line.split('\t')
     topics = [topic1, topic2, topic3, topic4, topic5]
     topics = [topic.split('>')[0] for topic in topics]
 
