@@ -6,7 +6,7 @@ from collections import Counter
 
 
 def write_file(path, data):
-    with open(path, 'w', encoding='utf-8') as f:
+    with open(path, 'w+', encoding='utf-8') as f:
         for datum in data:
             f.write(datum+'\n')
 
