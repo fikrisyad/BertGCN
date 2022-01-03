@@ -37,9 +37,9 @@ for line in lines:
 
     top_topic = counter.most_common(1)
     if top_topic[0][1] > 1:
-        temp = title + "\t" + document + "\t" + top_topic[0]
+        temp = title + "\t" + document + "\t" + top_topic[0][0]
         temp_source = title + "\t" + document
-        temp_target = top_topic[0]
+        temp_target = top_topic[0][0]
         preprocessed_data.append(temp)
         preprocessed_source.append(temp_source)
         preprocessed_target.append(temp_target)
