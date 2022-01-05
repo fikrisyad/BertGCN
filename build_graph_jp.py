@@ -14,13 +14,48 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 import sys
 from scipy.spatial.distance import cosine
 
-# if len(sys.argv) != 2:
-#     sys.exit("Use: python build_graph.py <dataset>")
+if len(sys.argv) != 2:
+    sys.exit("Use: python build_graph.py <dataset>")
 
-# datasets = ['20ng', 'R8', 'R52', 'ohsumed', 'mr']
+datasets = ['20ng', 'R8', 'R52', 'ohsumed', 'mr', 'japanese', 'jp_full_label']
 # build corpus
-# dataset = sys.argv[1]
-dataset = 'japanese'
+dataset = sys.argv[1]
+# dataset = 'japanese'
+
+full_label = [
+    '文学、本',
+    '映画',
+    '芸術、デザイン',
+    'パフォーマンス、ショー',
+    '音楽',
+    'ドラマ',
+    'スター、有名人',
+    'アニメ',
+    'テレビ、ラジオ放送',
+    '日常',
+    '子育て・結婚',
+    'ペット',
+    '良い記事、画像',
+    'ファッション、美容',
+    'インテリア、DIY',
+    '料理レシピ',
+    '製品レビュー',
+    '園芸、栽培',
+    'ゲーム',
+    'スポーツ',
+    '写真',
+    '車',
+    '趣味',
+    '国内旅行',
+    '海外旅行',
+    'レストラン',
+    'IT、コンピュータ',
+    '社会、政治',
+    '健康、医学',
+    'ビジネス、経済',
+    '言語、外国語',
+    '教育、学術'
+]
 
 # if dataset not in datasets:
 #     sys.exit("wrong dataset name")
@@ -162,6 +197,10 @@ for i, line in enumerate(lines):
         test_label_list.append(temp[0].strip())
         doc_label_list.append(temp[0].strip())
 ftest.close()
+
+if dataset == 'jp_full_label':
+    for label in full_label:
+        label_set.add(label.strip())
 
 label_list = list(label_set)
 
