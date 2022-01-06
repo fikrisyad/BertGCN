@@ -19,7 +19,8 @@ parser.add_argument('--max_length', type=int, default=128, help='the input lengt
 parser.add_argument('--batch_size', type=int, default=128)
 parser.add_argument('--nb_epochs', type=int, default=60)
 parser.add_argument('--bert_lr', type=float, default=1e-4)
-parser.add_argument('--dataset', default='korean', choices=['20ng', 'R8', 'R52', 'ohsumed', 'mr', 'korean', 'japanese'])
+parser.add_argument('--dataset', default='korean', choices=['20ng', 'R8', 'R52', 'ohsumed', 'mr', 'korean', 'japanese',
+                                                            'kr_full_label', 'jp_full_label'])
 parser.add_argument('--bert_init', type=str, default='bert-base-multilingual-cased',
                     choices=['roberta-base', 'roberta-large', 'bert-base-uncased', 'bert-large-uncased',
                              'bert-base-multilingual-cased'])
