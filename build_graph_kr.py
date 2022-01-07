@@ -216,8 +216,9 @@ label_list = list(label_set)
 train_ids = []
 for train_name in doc_train_list:
     train_id = doc_name_list.index(train_name)
-    train_ids.append(train_id)
-print(train_ids)
+    if doc_label_list[train_id] in full_label:
+        train_ids.append(train_id)
+# print(train_ids)
 random.shuffle(train_ids)
 
 train_ids_str = '\n'.join(str(index) for index in train_ids)
@@ -228,8 +229,9 @@ f.close()
 val_ids = []
 for val_name in doc_val_list:
     val_id = doc_name_list.index(val_name)
-    val_ids.append(val_id)
-print(val_ids)
+    if doc_label_list[val_id] in full_label:
+        val_ids.append(val_id)
+# print(val_ids)
 random.shuffle(val_ids)
 
 val_ids_str = '\n'.join(str(index) for index in val_ids)
@@ -240,8 +242,9 @@ f.close()
 test_ids = []
 for test_name in doc_test_list:
     test_id = doc_name_list.index(test_name)
-    test_ids.append(test_id)
-print(test_ids)
+    if doc_label_list[test_id] in full_label:
+        test_ids.append(test_id)
+# print(test_ids)
 random.shuffle(test_ids)
 
 test_ids_str = '\n'.join(str(index) for index in test_ids)
