@@ -25,7 +25,7 @@ dataset = sys.argv[1]
 # dataset = 'korean'
 
 full_label = [
-    '문학,책',
+    '문학, 책',
     '영화',
     '미술, 디자인',
     '공연, 전시',
@@ -179,7 +179,8 @@ lines = ftrain.readlines()
 for i, line in enumerate(lines):
     if i in source_train_idx:
         temp = line.split(">")
-        label_set.add(temp[0].strip())
+        if temp[0].strip() in full_label:
+            label_set.add(temp[0].strip())
         train_label_list.append(temp[0].strip())
         doc_label_list.append(temp[0].strip())
 ftrain.close()
@@ -188,7 +189,8 @@ lines = fval.readlines()
 for i, line in enumerate(lines):
     if i in source_val_idx:
         temp = line.split(">")
-        label_set.add(temp[0].strip())
+        if temp[0].strip() in full_label:
+            label_set.add(temp[0].strip())
         val_label_list.append(temp[0].strip())
         doc_label_list.append(temp[0].strip())
 fval.close()
@@ -197,7 +199,8 @@ lines = ftest.readlines()
 for i, line in enumerate(lines):
     if i in source_test_idx:
         temp = line.split(">")
-        label_set.add(temp[0].strip())
+        if temp[0].strip() in full_label:
+            label_set.add(temp[0].strip())
         test_label_list.append(temp[0].strip())
         doc_label_list.append(temp[0].strip())
 ftest.close()
@@ -254,14 +257,15 @@ shuffle_doc_name_list = []
 shuffle_doc_words_list = []
 shuffle_doc_label_list = []
 for idx in ids:
-    shuffle_doc_name_list.append(doc_name_list[int(idx)])
-    if len(doc_content_list[int(idx)]) < 1:
-        print("DEBUG doc_content_list")
-        print(doc_content_list[int(idx)])
-        print("title", str(doc_name_list[int(idx)]))
-        exit()
-    shuffle_doc_words_list.append(doc_content_list[int(idx)])
-    shuffle_doc_label_list.append(doc_label_list[int(idx)])
+    if doc_label_list[int(idx)] in full_label:
+        shuffle_doc_name_list.append(doc_name_list[int(idx)])
+        if len(doc_content_list[int(idx)]) < 1:
+            print("DEBUG doc_content_list")
+            print(doc_content_list[int(idx)])
+            print("title", str(doc_name_list[int(idx)]))
+            exit()
+        shuffle_doc_words_list.append(doc_content_list[int(idx)])
+        shuffle_doc_label_list.append(doc_label_list[int(idx)])
 shuffle_doc_name_str = '\n'.join(shuffle_doc_name_list)
 shuffle_doc_words_str = '\n'.join(shuffle_doc_words_list)
 shuffle_doc_label_str = '\n'.join(shuffle_doc_label_list)
