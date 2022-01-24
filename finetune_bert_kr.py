@@ -26,6 +26,7 @@ parser.add_argument('--bert_init', type=str, default='bert-base-multilingual-cas
                              'bert-base-multilingual-cased'])
 parser.add_argument('--checkpoint_dir', default=None,
                     help='checkpoint directory, [bert_init]_[dataset] if not specified')
+parser.add_argument('--weight_mode', type=str, default=None, choices=['pmi', 'cos'])
 
 args = parser.parse_args()
 
@@ -36,6 +37,9 @@ bert_lr = args.bert_lr
 dataset = args.dataset
 bert_init = args.bert_init
 checkpoint_dir = args.checkpoint_dir
+
+weight_mode = args.weight_mode
+
 if checkpoint_dir is None:
     ckpt_dir = './checkpoint/{}_{}'.format(bert_init, dataset)
 else:
@@ -63,8 +67,9 @@ logger.info(str(args))
 logger.info('checkpoints will be saved in {}'.format(ckpt_dir))
 
 # Data Preprocess
+dataset_str = dataset if not weight_mode else dataset + '.' + weight_mode
 adj, features, y_train, y_val, y_test, train_mask, val_mask, test_mask, \
-train_size, test_size = load_corpus_multilingual(dataset)
+train_size, test_size = load_corpus_multilingual(dataset_str)
 '''
 y_train, y_val, y_test: n*c matrices 
 train_mask, val_mask, test_mask: n-d bool array

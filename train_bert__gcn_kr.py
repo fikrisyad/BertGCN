@@ -1,6 +1,10 @@
+from email.policy import default
+
 import torch as th
 from transformers import AutoModel, AutoTokenizer
 import torch.nn.functional as F
+
+from build_graph_kr import weight_mode
 from utils import *
 import dgl
 import torch.utils.data as Data
@@ -38,6 +42,7 @@ parser.add_argument('--heads', type=int, default=8, help='the number of attentio
 parser.add_argument('--dropout', type=float, default=0.5)
 parser.add_argument('--gcn_lr', type=float, default=1e-3)
 parser.add_argument('--bert_lr', type=float, default=1e-5)
+parser.add_argument('--weight_mode', type=str, default=None, choices=['pmi', 'cos'])
 
 args = parser.parse_args()
 max_length = args.max_length
@@ -55,6 +60,8 @@ heads = args.heads
 dropout = args.dropout
 gcn_lr = args.gcn_lr
 bert_lr = args.bert_lr
+
+weight_mode = args.weight_mode
 
 if checkpoint_dir is None:
     ckpt_dir = './checkpoint/{}_{}_{}'.format(bert_init, gcn_model, dataset)
@@ -84,8 +91,9 @@ logger.info('checkpoints will be saved in {}'.format(ckpt_dir))
 
 
 # Data Preprocess
+dataset_str = dataset if not weight_mode else dataset + '.' + weight_mode
 adj, features, y_train, y_val, y_test, train_mask, val_mask, test_mask, \
-train_size, test_size = load_corpus_multilingual(dataset)
+train_size, test_size = load_corpus_multilingual(dataset_str)
 '''
 adj: n*n sparse adjacency matrix
 y_train, y_val, y_test: n*c matrices 
