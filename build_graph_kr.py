@@ -19,8 +19,8 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 import sys
 from scipy.spatial.distance import cosine
 
-if len(sys.argv) != 2:
-    sys.exit("Use: python build_graph.py <dataset>")
+if len(sys.argv) != 3:
+    sys.exit("Use: python build_graph.py <dataset> <weight_mode>")
 
 datasets = ['20ng', 'R8', 'R52', 'ohsumed', 'mr', 'korean', 'kr_full_label']
 
@@ -239,7 +239,7 @@ for train_name in doc_train_list:
 random.shuffle(train_ids)
 
 train_ids_str = '\n'.join(str(index) for index in train_ids)
-f = open('data/' + dataset + '.train.index', 'w', encoding='utf-8')
+f = open('data/' + dataset + '.' + weight_mode + '.train.index', 'w', encoding='utf-8')
 f.write(train_ids_str)
 f.close()
 
@@ -252,7 +252,7 @@ for val_name in doc_val_list:
 random.shuffle(val_ids)
 
 val_ids_str = '\n'.join(str(index) for index in val_ids)
-f = open('data/' + dataset + '.val.index', 'w', encoding='utf-8')
+f = open('data/' + dataset + '.' + weight_mode + '.val.index', 'w', encoding='utf-8')
 f.write(val_ids_str)
 f.close()
 
@@ -265,7 +265,7 @@ for test_name in doc_test_list:
 random.shuffle(test_ids)
 
 test_ids_str = '\n'.join(str(index) for index in test_ids)
-f = open('data/' + dataset + '.test.index', 'w', encoding='utf-8')
+f = open('data/' + dataset + '.' + weight_mode + '.test.index', 'w', encoding='utf-8')
 f.write(test_ids_str)
 f.close()
 
@@ -290,15 +290,15 @@ shuffle_doc_name_str = '\n'.join(shuffle_doc_name_list)
 shuffle_doc_words_str = '\n'.join(shuffle_doc_words_list)
 shuffle_doc_label_str = '\n'.join(shuffle_doc_label_list)
 
-f = open('data/' + dataset + '_shuffle.txt', 'w', encoding='utf-8')
+f = open('data/' + dataset + '.' + weight_mode + '_shuffle.txt', 'w', encoding='utf-8')
 f.write(shuffle_doc_name_str)
 f.close()
 
-f = open('data/corpus/' + dataset + '_shuffle.txt', 'w', encoding='utf-8')
+f = open('data/corpus/' + dataset + '.' + weight_mode + '_shuffle.txt', 'w', encoding='utf-8')
 f.write(shuffle_doc_words_str)
 f.close()
 
-f = open('data/corpus/' + dataset + 'label_shuffle.txt', 'w', encoding='utf-8')
+f = open('data/corpus/' + dataset + '.' + weight_mode + 'label_shuffle.txt', 'w', encoding='utf-8')
 f.write(shuffle_doc_label_str)
 f.close()
 
@@ -350,7 +350,7 @@ for i in range(vocab_size):
 
 vocab_str = '\n'.join(vocab)
 
-f = open('data/corpus/' + dataset + '_vocab.txt', 'w', encoding='utf-8')
+f = open('data/corpus/' + dataset + '.' + weight_mode + '_vocab.txt', 'w', encoding='utf-8')
 f.write(vocab_str)
 f.close()
 
@@ -419,7 +419,7 @@ Word definitions end
 # label_list = list(label_set)
 
 label_list_str = '\n'.join(label_list)
-f = open('data/corpus/' + dataset + '_labels.txt', 'w', encoding='utf-8')
+f = open('data/corpus/' + dataset + '.' + weight_mode + '_labels.txt', 'w', encoding='utf-8')
 f.write(label_list_str)
 f.close()
 
@@ -783,30 +783,30 @@ adj = sp.csr_matrix(
     (weight, (row, col)), shape=(node_size, node_size))
 
 # dump objects
-f = open("data/ind.{}.x".format(dataset), 'wb')
+f = open("data/ind.{}.{}.x".format(dataset, weight_mode), 'wb')
 pkl.dump(x, f)
 f.close()
 
-f = open("data/ind.{}.y".format(dataset), 'wb')
+f = open("data/ind.{}.{}.y".format(dataset, weight_mode), 'wb')
 pkl.dump(y, f)
 f.close()
 
-f = open("data/ind.{}.tx".format(dataset), 'wb')
+f = open("data/ind.{}.{}.tx".format(dataset, weight_mode), 'wb')
 pkl.dump(tx, f)
 f.close()
 
-f = open("data/ind.{}.ty".format(dataset), 'wb')
+f = open("data/ind.{}.{}.ty".format(dataset, weight_mode), 'wb')
 pkl.dump(ty, f)
 f.close()
 
-f = open("data/ind.{}.allx".format(dataset), 'wb')
+f = open("data/ind.{}.{}.allx".format(dataset, weight_mode), 'wb')
 pkl.dump(allx, f)
 f.close()
 
-f = open("data/ind.{}.ally".format(dataset), 'wb')
+f = open("data/ind.{}.{}.ally".format(dataset, weight_mode), 'wb')
 pkl.dump(ally, f)
 f.close()
 
-f = open("data/ind.{}.adj".format(dataset), 'wb')
+f = open("data/ind.{}.{}.adj".format(dataset, weight_mode), 'wb')
 pkl.dump(adj, f)
 f.close()
