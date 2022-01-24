@@ -4,7 +4,6 @@ import torch as th
 from transformers import AutoModel, AutoTokenizer
 import torch.nn.functional as F
 
-from build_graph_kr import weight_mode
 from utils import *
 import dgl
 import torch.utils.data as Data
