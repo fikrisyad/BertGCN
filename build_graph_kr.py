@@ -716,7 +716,7 @@ elif weight_mode == 'cos':
         j = int(temp[1])
         word_i_str = vocab[i]
         word_j_str = vocab[j]
-        sim = cos_similarity(word_j_str, word_j_str, ft)
+        sim = cos_similarity(word_i_str, word_j_str, ft)
 
         if sim <= 0:
             continue
