@@ -1,6 +1,8 @@
 import os
 import random
-
+import fasttext
+import fasttext.util
+import scipy
 import konlpy
 import numpy as np
 import pickle as pkl
@@ -18,8 +20,25 @@ if len(sys.argv) != 2:
     sys.exit("Use: python build_graph.py <dataset>")
 
 datasets = ['20ng', 'R8', 'R52', 'ohsumed', 'mr', 'korean', 'en_full_label']
+
+# fasttext download model
+fasttext.util.download_model('en', if_exists='ignore')  # korean model
+ft = fasttext.load_model('cc.en.300.bin')
+
+
+def cos_similarity(word1, word2, fasttext_model):
+    word1_emb = np.mean([fasttext_model[word1]], axis=0)
+    word2_emb = np.mean([fasttext_model[word2]], axis=0)
+    distance = scipy.spatial.distance.cosine(word1_emb, word2_emb)
+    if distance >= 0:
+        return 1 - distance
+    else:
+        return 0
+
+
 # build corpus
 dataset = sys.argv[1]
+weight_mode = sys.argv[2]  # ['pmi', 'cos']
 # dataset = 'korean'
 
 full_label = [
@@ -220,7 +239,7 @@ for train_name in doc_train_list:
 random.shuffle(train_ids)
 
 train_ids_str = '\n'.join(str(index) for index in train_ids)
-f = open('data/' + dataset + '.train.index', 'w', encoding='utf-8')
+f = open('data/' + dataset + '.' + weight_mode + '.train.index', 'w', encoding='utf-8')
 f.write(train_ids_str)
 f.close()
 
@@ -233,7 +252,7 @@ for val_name in doc_val_list:
 random.shuffle(val_ids)
 
 val_ids_str = '\n'.join(str(index) for index in val_ids)
-f = open('data/' + dataset + '.val.index', 'w', encoding='utf-8')
+f = open('data/' + dataset + '.' + weight_mode + '.val.index', 'w', encoding='utf-8')
 f.write(val_ids_str)
 f.close()
 
@@ -246,7 +265,7 @@ for test_name in doc_test_list:
 random.shuffle(test_ids)
 
 test_ids_str = '\n'.join(str(index) for index in test_ids)
-f = open('data/' + dataset + '.test.index', 'w', encoding='utf-8')
+f = open('data/' + dataset + '.' + weight_mode + '.test.index', 'w', encoding='utf-8')
 f.write(test_ids_str)
 f.close()
 
@@ -271,15 +290,15 @@ shuffle_doc_name_str = '\n'.join(shuffle_doc_name_list)
 shuffle_doc_words_str = '\n'.join(shuffle_doc_words_list)
 shuffle_doc_label_str = '\n'.join(shuffle_doc_label_list)
 
-f = open('data/' + dataset + '_shuffle.txt', 'w', encoding='utf-8')
+f = open('data/' + dataset + '.' + weight_mode + '_shuffle.txt', 'w', encoding='utf-8')
 f.write(shuffle_doc_name_str)
 f.close()
 
-f = open('data/corpus/' + dataset + '_shuffle.txt', 'w', encoding='utf-8')
+f = open('data/corpus/' + dataset + '.' + weight_mode + '_shuffle.txt', 'w', encoding='utf-8')
 f.write(shuffle_doc_words_str)
 f.close()
 
-f = open('data/corpus/' + dataset + 'label_shuffle.txt', 'w', encoding='utf-8')
+f = open('data/corpus/' + dataset + '.' + weight_mode + 'label_shuffle.txt', 'w', encoding='utf-8')
 f.write(shuffle_doc_label_str)
 f.close()
 
@@ -325,7 +344,7 @@ for i in range(vocab_size):
 
 vocab_str = '\n'.join(vocab)
 
-f = open('data/corpus/' + dataset + '_vocab.txt', 'w', encoding='utf-8')
+f = open('data/corpus/' + dataset + '.' + weight_mode + '_vocab.txt', 'w', encoding='utf-8')
 f.write(vocab_str)
 f.close()
 
@@ -394,7 +413,7 @@ Word definitions end
 # label_list = list(label_set)
 
 label_list_str = '\n'.join(label_list)
-f = open('data/corpus/' + dataset + '_labels.txt', 'w', encoding='utf-8')
+f = open('data/corpus/' + dataset + '.' + weight_mode + '_labels.txt', 'w', encoding='utf-8')
 f.write(label_list_str)
 f.close()
 
@@ -655,21 +674,39 @@ weight = []
 
 num_window = len(windows)
 
-for key in word_pair_count:
-    temp = key.split(',')
-    i = int(temp[0])
-    j = int(temp[1])
-    count = word_pair_count[key]
-    word_freq_i = word_window_freq[vocab[i]]
-    word_freq_j = word_window_freq[vocab[j]]
-    pmi = log((1.0 * count / num_window) /
-              (1.0 * word_freq_i * word_freq_j / (num_window * num_window)))
-    if pmi <= 0:
-        continue
-    row.append(train_size + val_size + i)
-    col.append(train_size + val_size + j)
-    weight.append(pmi)
+if weight_mode == 'pmi':
+    for key in word_pair_count:
+        temp = key.split(',')
+        i = int(temp[0])
+        j = int(temp[1])
+        count = word_pair_count[key]
+        word_freq_i = word_window_freq[vocab[i]]
+        word_freq_j = word_window_freq[vocab[j]]
+        pmi = log((1.0 * count / num_window) /
+                  (1.0 * word_freq_i * word_freq_j / (num_window * num_window)))
+        if pmi <= 0:
+            continue
 
+        row.append(train_size + val_size + i)
+        col.append(train_size + val_size + j)
+        weight.append(pmi)
+
+# word vector cosine similarity as weights
+elif weight_mode == 'cos':
+    print("Using cosine similarity as weights")
+    for key in word_pair_count:
+        temp = key.split(',')
+        i = int(temp[0])
+        j = int(temp[1])
+        word_i_str = vocab[i]
+        word_j_str = vocab[j]
+        sim = cos_similarity(word_i_str, word_j_str, ft)
+
+        if sim <= 0:
+            continue
+        row.append(train_size + val_size + i)
+        col.append(train_size + val_size + j)
+        weight.append(sim)
 # word vector cosine similarity as weights
 
 '''
@@ -727,30 +764,30 @@ adj = sp.csr_matrix(
     (weight, (row, col)), shape=(node_size, node_size))
 
 # dump objects
-f = open("data/ind.{}.x".format(dataset), 'wb')
+f = open("data/ind.{}.{}.x".format(dataset, weight_mode), 'wb')
 pkl.dump(x, f)
 f.close()
 
-f = open("data/ind.{}.y".format(dataset), 'wb')
+f = open("data/ind.{}.{}.y".format(dataset, weight_mode), 'wb')
 pkl.dump(y, f)
 f.close()
 
-f = open("data/ind.{}.tx".format(dataset), 'wb')
+f = open("data/ind.{}.{}.tx".format(dataset, weight_mode), 'wb')
 pkl.dump(tx, f)
 f.close()
 
-f = open("data/ind.{}.ty".format(dataset), 'wb')
+f = open("data/ind.{}.{}.ty".format(dataset, weight_mode), 'wb')
 pkl.dump(ty, f)
 f.close()
 
-f = open("data/ind.{}.allx".format(dataset), 'wb')
+f = open("data/ind.{}.{}.allx".format(dataset, weight_mode), 'wb')
 pkl.dump(allx, f)
 f.close()
 
-f = open("data/ind.{}.ally".format(dataset), 'wb')
+f = open("data/ind.{}.{}.ally".format(dataset, weight_mode), 'wb')
 pkl.dump(ally, f)
 f.close()
 
-f = open("data/ind.{}.adj".format(dataset), 'wb')
+f = open("data/ind.{}.{}.adj".format(dataset, weight_mode), 'wb')
 pkl.dump(adj, f)
 f.close()
