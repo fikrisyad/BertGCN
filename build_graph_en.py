@@ -16,8 +16,8 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 import sys
 from scipy.spatial.distance import cosine
 
-if len(sys.argv) != 2:
-    sys.exit("Use: python build_graph.py <dataset>")
+if len(sys.argv) != 3:
+    sys.exit("Use: python build_graph.py <dataset> <weight_mode>")
 
 datasets = ['20ng', 'R8', 'R52', 'ohsumed', 'mr', 'korean', 'en_full_label']
 
