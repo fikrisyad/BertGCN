@@ -3,7 +3,6 @@ import random
 import fasttext
 import fasttext.util
 import scipy
-import warnings
 
 import konlpy
 import numpy as np
@@ -12,6 +11,7 @@ import networkx as nx
 import scipy.sparse as sp
 from konlpy.tag import Hannanum
 from konlpy.tag import Komoran
+import mecab  # python-mecab-ko
 from utils import loadWord2Vec, clean_str
 from math import log
 from sklearn import svm
@@ -28,17 +28,13 @@ datasets = ['20ng', 'R8', 'R52', 'ohsumed', 'mr', 'korean', 'kr_full_label']
 # fasttext download model
 fasttext.util.download_model('ko', if_exists='ignore')  # korean model
 ft = fasttext.load_model('cc.ko.300.bin')
-# warnings.filterwarnings("error")
+
 
 def cos_similarity(word1, word2, fasttext_model):
-    word1_emb = np.mean(fasttext_model[word1], axis=0)
-    word2_emb = np.mean(fasttext_model[word2], axis=0)
-    distance = scipy.spatial.distance.cosine(word1_emb, word2_emb)
-    if distance >= 0:
-        return 1 - scipy.spatial.distance.cosine(word1_emb, word2_emb)
-    else:
-        return 0
-    # return 1 - scipy.spatial.distance.cosine(word1_emb, word2_emb)
+    word1_emb = np.mean([fasttext_model[word1]], axis=0)
+    word2_emb = np.mean([fasttext_model[word2]], axis=0)
+
+    return 1 - scipy.spatial.distance.cosine(word1_emb, word2_emb)
 
 
 # build corpus
@@ -116,56 +112,43 @@ lines = ftrain.readlines()
 source_train_idx = []
 source_val_idx = []
 source_test_idx = []
-
-# debugging
-debug_limit = 100000
-
 for i, line in enumerate(lines):
-    if i < debug_limit:
-        line = line.strip()
-        title, content = line.split('</s>')
-        if len(content) > 0:
-            source_train_idx.append(i)
-            doc_name_list.append(title)
-            doc_train_list.append(title)
-            doc_content_list.append(content)
-            train_content_list.append(content)
-    else:
-        break
+    line = line.strip()
+    title, content = line.split('</s>')
+    if len(content) > 0:
+        source_train_idx.append(i)
+        doc_name_list.append(title)
+        doc_train_list.append(title)
+        doc_content_list.append(content)
+        train_content_list.append(content)
     # doc_name_list.append(line.strip())
     # doc_train_list.append(line.strip())
 ftrain.close()
 
 lines = fval.readlines()
 for i, line in enumerate(lines):
-    if i < debug_limit:
-        line = line.strip()
-        title, content = line.split('</s>')
-        if len(content) > 0:
-            source_val_idx.append(i)
-            doc_name_list.append(title)
-            doc_val_list.append(title)
-            doc_content_list.append(content)
-            val_content_list.append(content)
-    else:
-        break
+    line = line.strip()
+    title, content = line.split('</s>')
+    if len(content) > 0:
+        source_val_idx.append(i)
+        doc_name_list.append(title)
+        doc_val_list.append(title)
+        doc_content_list.append(content)
+        val_content_list.append(content)
     # doc_name_list.append(line.strip())
     # doc_val_list.append(line.strip())
 fval.close()
 
 lines = ftest.readlines()
 for i, line in enumerate(lines):
-    if i < debug_limit:
-        line = line.strip()
-        title, content = line.split('</s>')
-        if len(content) > 0:
-            source_test_idx.append(i)
-            doc_name_list.append(title)
-            doc_test_list.append(title)
-            doc_content_list.append(content)
-            test_content_list.append(content)
-    else:
-        break
+    line = line.strip()
+    title, content = line.split('</s>')
+    if len(content) > 0:
+        source_test_idx.append(i)
+        doc_name_list.append(title)
+        doc_test_list.append(title)
+        doc_content_list.append(content)
+        test_content_list.append(content)
     # doc_name_list.append(line.strip())
     # doc_test_list.append(line.strip())
 ftest.close()
@@ -214,8 +197,8 @@ lines = ftrain.readlines()
 for i, line in enumerate(lines):
     if i in source_train_idx:
         temp = line.split(">")
-        if temp[0].strip() in full_label:
-            label_set.add(temp[0].strip())
+        # if temp[0].strip() in full_label:
+        #     label_set.add(temp[0].strip())
         train_label_list.append(temp[0].strip())
         doc_label_list.append(temp[0].strip())
 ftrain.close()
@@ -224,8 +207,8 @@ lines = fval.readlines()
 for i, line in enumerate(lines):
     if i in source_val_idx:
         temp = line.split(">")
-        if temp[0].strip() in full_label:
-            label_set.add(temp[0].strip())
+        # if temp[0].strip() in full_label:
+        #     label_set.add(temp[0].strip())
         val_label_list.append(temp[0].strip())
         doc_label_list.append(temp[0].strip())
 fval.close()
@@ -234,17 +217,17 @@ lines = ftest.readlines()
 for i, line in enumerate(lines):
     if i in source_test_idx:
         temp = line.split(">")
-        if temp[0].strip() in full_label:
-            label_set.add(temp[0].strip())
+        # if temp[0].strip() in full_label:
+        #     label_set.add(temp[0].strip())
         test_label_list.append(temp[0].strip())
         doc_label_list.append(temp[0].strip())
 ftest.close()
 
 # add full length of label (32)
-if dataset == 'kr_full_label':
-    for label in full_label:
-        label_set.add(label.strip())
-label_list = list(label_set)
+# if dataset == 'kr_full_label':
+#     for label in full_label:
+#         label_set.add(label.strip())
+# label_list = list(label_set)
 
 # partial labeled data
 # train_ids = train_ids[:int(0.2 * len(train_ids))]
@@ -324,11 +307,11 @@ f.close()
 word_freq = {}
 word_set = set()
 # hannanum = Hannanum()
-komoran = Komoran()
+# komoran = Komoran()
+mecabko = mecab.MeCab()
 for doc_words in shuffle_doc_words_list:
     # words = doc_words.split()
-    # words = hannanum.morphs(doc_words)
-    words = komoran.morphs(doc_words)
+    words = mecabko.morphs(doc_words)
     for word in words:
         word_set.add(word)
         if word in word_freq:
@@ -345,7 +328,7 @@ for i in range(len(shuffle_doc_words_list)):
     doc_words = shuffle_doc_words_list[i]
     # words = doc_words.split()
     # words = hannanum.morphs(doc_words)
-    words = komoran.morphs(doc_words)
+    words = mecabko.morphs(doc_words)
     appeared = set()
     for word in words:
         if word in appeared:
@@ -367,11 +350,11 @@ for i in range(vocab_size):
     word_id_map[vocab[i]] = i
 
 vocab_str = '\n'.join(vocab)
-# debugging
-#f = open('data/corpus/' + dataset + '.' + weight_mode + '_vocab.txt', 'w', encoding='utf-8')
-#f.write(vocab_str)
-#f.close()
-#
+
+f = open('data/corpus/' + dataset + '.' + weight_mode + '_vocab.txt', 'w', encoding='utf-8')
+f.write(vocab_str)
+f.close()
+
 '''
 Word definitions begin
 '''
@@ -436,12 +419,11 @@ Word definitions end
 #     label_set.add(temp[2])
 # label_list = list(label_set)
 
-label_list_str = '\n'.join(label_list)
-
-# debugging
-#f = open('data/corpus/' + dataset + '.' + weight_mode + '_labels.txt', 'w', encoding='utf-8')
-#f.write(label_list_str)
-#f.close()
+# label_list_str = '\n'.join(label_list)
+label_list_str = '\n'.join(full_label)
+f = open('data/corpus/' + dataset + '.' + weight_mode + '_labels.txt', 'w', encoding='utf-8')
+f.write(label_list_str)
+f.close()
 
 # x: feature vectors of training docs, no initial features
 # slect 90% training set
@@ -467,7 +449,7 @@ for i in range(real_train_size):
     doc_words = shuffle_doc_words_list[i]
     # words = doc_words.split()
     # words = hannanum.morphs(doc_words)
-    words = komoran.morphs(doc_words)
+    words = mecabko.morphs(doc_words)
     doc_len = len(words)
     for word in words:
         if word in word_vector_map:
@@ -492,8 +474,10 @@ for i in range(real_train_size):
     # temp = doc_meta.split('\t')
     # label = temp[2]
     label = shuffle_doc_label_list[i]
-    one_hot = [0 for l in range(len(label_list))]
-    label_index = label_list.index(label)
+    # one_hot = [0 for l in range(len(label_list))]
+    one_hot = [0 for l in range(len(full_label))]
+    # label_index = label_list.index(label)
+    label_index = full_label.index(label)
     one_hot[label_index] = 1
     y.append(one_hot)
 y = np.array(y)
@@ -509,7 +493,7 @@ for i in range(val_size):
     doc_vec = np.array([0.0 for k in range(word_embeddings_dim)])
     doc_words = shuffle_doc_words_list[i + train_size]
     # words = hannanum.morphs(doc_words)
-    words = komoran.morphs(doc_words)
+    words = mecabko.morphs(doc_words)
     doc_len = len(words)
     # if doc_len <= 0:
     #     print("doc_words:", doc_words)
@@ -531,8 +515,10 @@ vx = sp.csr_matrix((data_vx, (row_vx, col_vx)),
 vy = []
 for i in range(val_size):
     label = shuffle_doc_label_list[i + train_size]  # should be replaced with shuffled_val_label_list
-    one_hot = [0 for l in range(len(label_list))]
-    label_index = label_list.index(label)
+    # one_hot = [0 for l in range(len(label_list))]
+    one_hot = [0 for l in range(len(full_label))]
+    # label_index = label_list.index(label)
+    label_index = full_label.index(label)
     one_hot[label_index] = 1
     vy.append(one_hot)
 vy = np.array(vy)
@@ -549,7 +535,7 @@ for i in range(test_size):
     doc_words = shuffle_doc_words_list[i + train_size + val_size]
     # words = doc_words.split()
     # words = hannanum.morphs(doc_words)
-    words = komoran.morphs(doc_words)
+    words = mecabko.morphs(doc_words)
     doc_len = len(words)
     for word in words:
         if word in word_vector_map:
@@ -572,8 +558,10 @@ for i in range(test_size):
     # temp = doc_meta.split('\t')
     # label = temp[2]
     label = shuffle_doc_label_list[i + train_size + val_size]  # should be replaced with shuffled_test_label_list
-    one_hot = [0 for l in range(len(label_list))]
-    label_index = label_list.index(label)
+    # one_hot = [0 for l in range(len(label_list))]
+    # label_index = label_list.index(label)
+    one_hot = [0 for l in range(len(full_label))]
+    label_index = full_label.index(label)
     one_hot[label_index] = 1
     ty.append(one_hot)
 ty = np.array(ty)
@@ -601,7 +589,7 @@ for i in range(train_size + val_size):  # following the original code
     doc_words = shuffle_doc_words_list[i]
     # words = doc_words.split()
     # words = hannanum.morphs(doc_words)
-    words = komoran.morphs(doc_words)
+    words = mecabko.morphs(doc_words)
     doc_len = len(words)
     for word in words:
         if word in word_vector_map:
@@ -632,13 +620,16 @@ for i in range(train_size + val_size):
     # temp = doc_meta.split('\t')
     # label = temp[2]
     label = shuffle_doc_label_list[i]
-    one_hot = [0 for l in range(len(label_list))]
-    label_index = label_list.index(label)
+    # one_hot = [0 for l in range(len(label_list))]
+    # label_index = label_list.index(label)
+    one_hot = [0 for l in range(len(full_label))]
+    label_index = full_label.index(label)
     one_hot[label_index] = 1
     ally.append(one_hot)
 
 for i in range(vocab_size):
-    one_hot = [0 for l in range(len(label_list))]
+    # one_hot = [0 for l in range(len(label_list))]
+    one_hot = [0 for l in range(len(full_label))]
     ally.append(one_hot)
 
 ally = np.array(ally)
@@ -656,7 +647,7 @@ windows = []
 for doc_words in shuffle_doc_words_list:
     # words = doc_words.split()
     # words = hannanum.morphs(doc_words)
-    words = komoran.morphs(doc_words)
+    words = mecabko.morphs(doc_words)
     length = len(words)
     if length <= window_size:
         windows.append(words)
@@ -763,7 +754,7 @@ doc_word_freq = {}
 for doc_id in range(len(shuffle_doc_words_list)):
     doc_words = shuffle_doc_words_list[doc_id]
     # words = hannanum.morphs(doc_words)
-    words = komoran.morphs(doc_words)
+    words = mecabko.morphs(doc_words)
     # words = doc_words.split()
     # print("DEBUG word_id_map", len(word_id_map))
     # print("DEBUG len vocab", len(vocab))
@@ -780,7 +771,7 @@ for i in range(len(shuffle_doc_words_list)):
     doc_words = shuffle_doc_words_list[i]
     # words = doc_words.split()
     # words = hannanum.morphs(doc_words)
-    words = komoran.morphs(doc_words)
+    words = mecabko.morphs(doc_words)
     doc_word_set = set()
     for word in words:
         if word in doc_word_set:
@@ -801,32 +792,31 @@ for i in range(len(shuffle_doc_words_list)):
 node_size = train_size + val_size + vocab_size + test_size
 adj = sp.csr_matrix(
     (weight, (row, col)), shape=(node_size, node_size))
-# print("adj:", len(adj))
 
 # dump objects
-#f = open("data/ind.{}.{}.x".format(dataset, weight_mode), 'wb')
-#pkl.dump(x, f)
-#f.close()
-#
-#f = open("data/ind.{}.{}.y".format(dataset, weight_mode), 'wb')
-#pkl.dump(y, f)
-#f.close()
-#
-#f = open("data/ind.{}.{}.tx".format(dataset, weight_mode), 'wb')
-#pkl.dump(tx, f)
-#f.close()
-#
-#f = open("data/ind.{}.{}.ty".format(dataset, weight_mode), 'wb')
-#pkl.dump(ty, f)
-#f.close()
-#
-#f = open("data/ind.{}.{}.allx".format(dataset, weight_mode), 'wb')
-#pkl.dump(allx, f)
-#f.close()
-#
-#f = open("data/ind.{}.{}.ally".format(dataset, weight_mode), 'wb')
-#pkl.dump(ally, f)
-#f.close()
+f = open("data/ind.{}.{}.x".format(dataset, weight_mode), 'wb')
+pkl.dump(x, f)
+f.close()
+
+f = open("data/ind.{}.{}.y".format(dataset, weight_mode), 'wb')
+pkl.dump(y, f)
+f.close()
+
+f = open("data/ind.{}.{}.tx".format(dataset, weight_mode), 'wb')
+pkl.dump(tx, f)
+f.close()
+
+f = open("data/ind.{}.{}.ty".format(dataset, weight_mode), 'wb')
+pkl.dump(ty, f)
+f.close()
+
+f = open("data/ind.{}.{}.allx".format(dataset, weight_mode), 'wb')
+pkl.dump(allx, f)
+f.close()
+
+f = open("data/ind.{}.{}.ally".format(dataset, weight_mode), 'wb')
+pkl.dump(ally, f)
+f.close()
 
 f = open("data/ind.{}.{}.adj".format(dataset, weight_mode), 'wb')
 pkl.dump(adj, f)
