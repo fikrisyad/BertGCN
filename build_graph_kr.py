@@ -3,6 +3,7 @@ import random
 import fasttext
 import fasttext.util
 import scipy
+import warnings
 
 import konlpy
 import numpy as np
@@ -27,13 +28,17 @@ datasets = ['20ng', 'R8', 'R52', 'ohsumed', 'mr', 'korean', 'kr_full_label']
 # fasttext download model
 fasttext.util.download_model('ko', if_exists='ignore')  # korean model
 ft = fasttext.load_model('cc.ko.300.bin')
-
+# warnings.filterwarnings("error")
 
 def cos_similarity(word1, word2, fasttext_model):
-    word1_emb = np.mean([fasttext_model[word1]], axis=0)
-    word2_emb = np.mean([fasttext_model[word2]], axis=0)
-
-    return 1 - scipy.spatial.distance.cosine(word1_emb, word2_emb)
+    word1_emb = np.mean(fasttext_model[word1], axis=0)
+    word2_emb = np.mean(fasttext_model[word2], axis=0)
+    distance = scipy.spatial.distance.cosine(word1_emb, word2_emb)
+    if distance >= 0:
+        return 1 - scipy.spatial.distance.cosine(word1_emb, word2_emb)
+    else:
+        return 0
+    # return 1 - scipy.spatial.distance.cosine(word1_emb, word2_emb)
 
 
 # build corpus
@@ -111,43 +116,56 @@ lines = ftrain.readlines()
 source_train_idx = []
 source_val_idx = []
 source_test_idx = []
+
+# debugging
+debug_limit = 100000
+
 for i, line in enumerate(lines):
-    line = line.strip()
-    title, content = line.split('</s>')
-    if len(content) > 0:
-        source_train_idx.append(i)
-        doc_name_list.append(title)
-        doc_train_list.append(title)
-        doc_content_list.append(content)
-        train_content_list.append(content)
+    if i < debug_limit:
+        line = line.strip()
+        title, content = line.split('</s>')
+        if len(content) > 0:
+            source_train_idx.append(i)
+            doc_name_list.append(title)
+            doc_train_list.append(title)
+            doc_content_list.append(content)
+            train_content_list.append(content)
+    else:
+        break
     # doc_name_list.append(line.strip())
     # doc_train_list.append(line.strip())
 ftrain.close()
 
 lines = fval.readlines()
 for i, line in enumerate(lines):
-    line = line.strip()
-    title, content = line.split('</s>')
-    if len(content) > 0:
-        source_val_idx.append(i)
-        doc_name_list.append(title)
-        doc_val_list.append(title)
-        doc_content_list.append(content)
-        val_content_list.append(content)
+    if i < debug_limit:
+        line = line.strip()
+        title, content = line.split('</s>')
+        if len(content) > 0:
+            source_val_idx.append(i)
+            doc_name_list.append(title)
+            doc_val_list.append(title)
+            doc_content_list.append(content)
+            val_content_list.append(content)
+    else:
+        break
     # doc_name_list.append(line.strip())
     # doc_val_list.append(line.strip())
 fval.close()
 
 lines = ftest.readlines()
 for i, line in enumerate(lines):
-    line = line.strip()
-    title, content = line.split('</s>')
-    if len(content) > 0:
-        source_test_idx.append(i)
-        doc_name_list.append(title)
-        doc_test_list.append(title)
-        doc_content_list.append(content)
-        test_content_list.append(content)
+    if i < debug_limit:
+        line = line.strip()
+        title, content = line.split('</s>')
+        if len(content) > 0:
+            source_test_idx.append(i)
+            doc_name_list.append(title)
+            doc_test_list.append(title)
+            doc_content_list.append(content)
+            test_content_list.append(content)
+    else:
+        break
     # doc_name_list.append(line.strip())
     # doc_test_list.append(line.strip())
 ftest.close()
@@ -349,11 +367,11 @@ for i in range(vocab_size):
     word_id_map[vocab[i]] = i
 
 vocab_str = '\n'.join(vocab)
-
-f = open('data/corpus/' + dataset + '.' + weight_mode + '_vocab.txt', 'w', encoding='utf-8')
-f.write(vocab_str)
-f.close()
-
+# debugging
+#f = open('data/corpus/' + dataset + '.' + weight_mode + '_vocab.txt', 'w', encoding='utf-8')
+#f.write(vocab_str)
+#f.close()
+#
 '''
 Word definitions begin
 '''
@@ -419,9 +437,11 @@ Word definitions end
 # label_list = list(label_set)
 
 label_list_str = '\n'.join(label_list)
-f = open('data/corpus/' + dataset + '.' + weight_mode + '_labels.txt', 'w', encoding='utf-8')
-f.write(label_list_str)
-f.close()
+
+# debugging
+#f = open('data/corpus/' + dataset + '.' + weight_mode + '_labels.txt', 'w', encoding='utf-8')
+#f.write(label_list_str)
+#f.close()
 
 # x: feature vectors of training docs, no initial features
 # slect 90% training set
@@ -781,31 +801,32 @@ for i in range(len(shuffle_doc_words_list)):
 node_size = train_size + val_size + vocab_size + test_size
 adj = sp.csr_matrix(
     (weight, (row, col)), shape=(node_size, node_size))
+# print("adj:", len(adj))
 
 # dump objects
-f = open("data/ind.{}.{}.x".format(dataset, weight_mode), 'wb')
-pkl.dump(x, f)
-f.close()
-
-f = open("data/ind.{}.{}.y".format(dataset, weight_mode), 'wb')
-pkl.dump(y, f)
-f.close()
-
-f = open("data/ind.{}.{}.tx".format(dataset, weight_mode), 'wb')
-pkl.dump(tx, f)
-f.close()
-
-f = open("data/ind.{}.{}.ty".format(dataset, weight_mode), 'wb')
-pkl.dump(ty, f)
-f.close()
-
-f = open("data/ind.{}.{}.allx".format(dataset, weight_mode), 'wb')
-pkl.dump(allx, f)
-f.close()
-
-f = open("data/ind.{}.{}.ally".format(dataset, weight_mode), 'wb')
-pkl.dump(ally, f)
-f.close()
+#f = open("data/ind.{}.{}.x".format(dataset, weight_mode), 'wb')
+#pkl.dump(x, f)
+#f.close()
+#
+#f = open("data/ind.{}.{}.y".format(dataset, weight_mode), 'wb')
+#pkl.dump(y, f)
+#f.close()
+#
+#f = open("data/ind.{}.{}.tx".format(dataset, weight_mode), 'wb')
+#pkl.dump(tx, f)
+#f.close()
+#
+#f = open("data/ind.{}.{}.ty".format(dataset, weight_mode), 'wb')
+#pkl.dump(ty, f)
+#f.close()
+#
+#f = open("data/ind.{}.{}.allx".format(dataset, weight_mode), 'wb')
+#pkl.dump(allx, f)
+#f.close()
+#
+#f = open("data/ind.{}.{}.ally".format(dataset, weight_mode), 'wb')
+#pkl.dump(ally, f)
+#f.close()
 
 f = open("data/ind.{}.{}.adj".format(dataset, weight_mode), 'wb')
 pkl.dump(adj, f)

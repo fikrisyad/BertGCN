@@ -118,6 +118,10 @@ if pretrained_bert_ckpt is not None:
     model.bert_model.load_state_dict(ckpt['bert_model'])
     model.classifier.load_state_dict(ckpt['classifier'])
 
+    print("set param.requires_grad to False: freezing bert's layers/weights...")
+    for param in model.bert_model.parameters():
+        param.requires_grad = False
+
 # load documents and compute input encodings
 corpse_file = './data/corpus/' + dataset + '_shuffle.txt'
 with open(corpse_file, 'r', encoding='utf-8') as f:
