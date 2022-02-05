@@ -42,6 +42,7 @@ parser.add_argument('--dropout', type=float, default=0.5)
 parser.add_argument('--gcn_lr', type=float, default=1e-3)
 parser.add_argument('--bert_lr', type=float, default=1e-5)
 parser.add_argument('--weight_mode', type=str, default=None, choices=['pmi', 'cos'])
+parser.add_argument('--update_bert', type=bool, default=True, choices=[True, False])
 
 args = parser.parse_args()
 max_length = args.max_length
@@ -59,6 +60,7 @@ heads = args.heads
 dropout = args.dropout
 gcn_lr = args.gcn_lr
 bert_lr = args.bert_lr
+update_bert = args.update_bert
 
 weight_mode = args.weight_mode
 
@@ -118,9 +120,10 @@ if pretrained_bert_ckpt is not None:
     model.bert_model.load_state_dict(ckpt['bert_model'])
     model.classifier.load_state_dict(ckpt['classifier'])
 
-    print("set param.requires_grad to False: freezing bert's layers/weights...")
-    for param in model.bert_model.parameters():
-        param.requires_grad = False
+    if not update_bert:
+        print("set param.requires_grad to False: freezing bert's layers/weights...")
+        for param in model.bert_model.parameters():
+            param.requires_grad = False
 
 # load documents and compute input encodings
 corpse_file = './data/corpus/' + dataset + '_shuffle.txt'
