@@ -101,7 +101,8 @@ test_content_list = []
 
 # title_path = '/home/lr/kwonjingun/D2/naver/reddit_dataset/annotated/splited/'
 # content_path = '/home/lr/kwonjingun/D2/naver/reddit_dataset/annotated/splited/'
-both_path = '/home/lr/kwonjingun/D2/naver/reddit_dataset/annotated/splited/'
+# both_path = '/home/lr/kwonjingun/D2/naver/reddit_dataset/annotated/splited/'
+both_path = '/home/lr/kwonjingun/data_server/NAVER_MTC/naver/reddit_dataset/annotated/splited/'
 
 ftrain = open(both_path + 'train.source', 'r', encoding='utf-8')
 fval = open(both_path + 'val.source', 'r', encoding='utf-8')
