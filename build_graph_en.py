@@ -183,7 +183,7 @@ ftest.close()
 # ftest.close()
 
 # label list
-label_set = set()
+# label_set = set()
 train_label_list = []
 val_label_list = []
 test_label_list = []
@@ -197,8 +197,8 @@ lines = ftrain.readlines()
 for i, line in enumerate(lines):
     if i in source_train_idx:
         temp = line.split(">")
-        if temp[0].strip() in full_label:
-            label_set.add(temp[0].strip())
+        # if temp[0].strip() in full_label:
+        #     label_set.add(temp[0].strip())
         train_label_list.append(temp[0].strip())
         doc_label_list.append(temp[0].strip())
 ftrain.close()
@@ -207,8 +207,8 @@ lines = fval.readlines()
 for i, line in enumerate(lines):
     if i in source_val_idx:
         temp = line.split(">")
-        if temp[0].strip() in full_label:
-            label_set.add(temp[0].strip())
+        # if temp[0].strip() in full_label:
+        #     label_set.add(temp[0].strip())
         val_label_list.append(temp[0].strip())
         doc_label_list.append(temp[0].strip())
 fval.close()
@@ -217,17 +217,17 @@ lines = ftest.readlines()
 for i, line in enumerate(lines):
     if i in source_test_idx:
         temp = line.split(">")
-        if temp[0].strip() in full_label:
-            label_set.add(temp[0].strip())
+        # if temp[0].strip() in full_label:
+        #     label_set.add(temp[0].strip())
         test_label_list.append(temp[0].strip())
         doc_label_list.append(temp[0].strip())
 ftest.close()
 
 # add full length of label (32)
-if dataset == 'en_full_label':
-    for label in full_label:
-        label_set.add(label.strip())
-label_list = list(label_set)
+# if dataset == 'en_full_label':
+#     for label in full_label:
+#         label_set.add(label.strip())
+# label_list = list(label_set)
 
 # partial labeled data
 # train_ids = train_ids[:int(0.2 * len(train_ids))]
@@ -413,7 +413,8 @@ Word definitions end
 #     label_set.add(temp[2])
 # label_list = list(label_set)
 
-label_list_str = '\n'.join(label_list)
+# label_list_str = '\n'.join(label_list)
+label_list_str = '\n'.join(full_label)
 f = open('data/corpus/' + dataset + '.' + weight_mode + '_labels.txt', 'w', encoding='utf-8')
 f.write(label_list_str)
 f.close()
@@ -465,8 +466,10 @@ for i in range(real_train_size):
     # temp = doc_meta.split('\t')
     # label = temp[2]
     label = shuffle_doc_label_list[i]
-    one_hot = [0 for l in range(len(label_list))]
-    label_index = label_list.index(label)
+    # one_hot = [0 for l in range(len(label_list))]
+    # label_index = label_list.index(label)
+    one_hot = [0 for l in range(len(full_label))]
+    label_index = full_label.index(label)
     one_hot[label_index] = 1
     y.append(one_hot)
 y = np.array(y)
@@ -503,8 +506,10 @@ vx = sp.csr_matrix((data_vx, (row_vx, col_vx)),
 vy = []
 for i in range(val_size):
     label = shuffle_doc_label_list[i + train_size]  # should be replaced with shuffled_val_label_list
-    one_hot = [0 for l in range(len(label_list))]
-    label_index = label_list.index(label)
+    # one_hot = [0 for l in range(len(label_list))]
+    # label_index = label_list.index(label)
+    one_hot = [0 for l in range(len(full_label))]
+    label_index = full_label.index(label)
     one_hot[label_index] = 1
     vy.append(one_hot)
 vy = np.array(vy)
@@ -542,8 +547,10 @@ for i in range(test_size):
     # temp = doc_meta.split('\t')
     # label = temp[2]
     label = shuffle_doc_label_list[i + train_size + val_size]  # should be replaced with shuffled_test_label_list
-    one_hot = [0 for l in range(len(label_list))]
-    label_index = label_list.index(label)
+    # one_hot = [0 for l in range(len(label_list))]
+    # label_index = label_list.index(label)
+    one_hot = [0 for l in range(len(full_label))]
+    label_index = full_label.index(label)
     one_hot[label_index] = 1
     ty.append(one_hot)
 ty = np.array(ty)
@@ -600,13 +607,16 @@ for i in range(train_size + val_size):
     # temp = doc_meta.split('\t')
     # label = temp[2]
     label = shuffle_doc_label_list[i]
-    one_hot = [0 for l in range(len(label_list))]
-    label_index = label_list.index(label)
+    # one_hot = [0 for l in range(len(label_list))]
+    # label_index = label_list.index(label)
+    one_hot = [0 for l in range(len(full_label))]
+    label_index = full_label.index(label)
     one_hot[label_index] = 1
     ally.append(one_hot)
 
 for i in range(vocab_size):
-    one_hot = [0 for l in range(len(label_list))]
+    # one_hot = [0 for l in range(len(label_list))]
+    one_hot = [0 for l in range(len(full_label))]
     ally.append(one_hot)
 
 ally = np.array(ally)

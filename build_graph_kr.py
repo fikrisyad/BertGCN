@@ -33,8 +33,11 @@ ft = fasttext.load_model('cc.ko.300.bin')
 def cos_similarity(word1, word2, fasttext_model):
     word1_emb = np.mean([fasttext_model[word1]], axis=0)
     word2_emb = np.mean([fasttext_model[word2]], axis=0)
-
-    return 1 - scipy.spatial.distance.cosine(word1_emb, word2_emb)
+    distance = scipy.spatial.distance.cosine(word1_emb, word2_emb)
+    if distance >= 0:
+        return 1 - distance
+    else:
+        return 0
 
 
 # build corpus
@@ -100,8 +103,8 @@ train_content_list = []
 val_content_list = []
 test_content_list = []
 
-title_path = '/home/lr/kwonjingun/D2/naver/dataset/processed/title/'
-content_path = '/home/lr/kwonjingun/D2/naver/dataset/processed/content/'
+# title_path = '/home/lr/kwonjingun/D2/naver/dataset/processed/title/'
+# content_path = '/home/lr/kwonjingun/D2/naver/dataset/processed/content/'
 # both_path = '/home/lr/kwonjingun/D2/naver/dataset/processed/both/'
 both_path = '/home/lr/kwonjingun/data_server/NAVER_MTC/naver/dataset/processed/both/'
 
