@@ -91,7 +91,8 @@ label = {}
 label['train'], label['val'], label['test'] = y[:nb_train], y[nb_train:nb_train + nb_val], y[-nb_test:]
 
 # load documents and compute input encodings
-corpus_file = './data/corpus/' + dataset + '_shuffle.txt'
+# corpus_file = './data/corpus/' + dataset + '_shuffle.txt'
+corpus_file = './data/corpus/' + dataset_str + '_shuffle.txt'
 with open(corpus_file, 'r', encoding='utf8') as f:
     text = f.read()
     text = text.replace('\\', '')
