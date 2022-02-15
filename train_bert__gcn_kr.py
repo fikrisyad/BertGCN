@@ -41,7 +41,7 @@ parser.add_argument('--heads', type=int, default=8, help='the number of attentio
 parser.add_argument('--dropout', type=float, default=0.5)
 parser.add_argument('--gcn_lr', type=float, default=1e-3)
 parser.add_argument('--bert_lr', type=float, default=1e-5)
-parser.add_argument('--weight_mode', type=str, default=None, choices=['pmi', 'cos'])
+parser.add_argument('--weight_mode', type=str, default=None, choices=['pmi', 'cos', 'cos_cos'])
 parser.add_argument('--update_bert', type=bool, default=True, choices=[True, False])
 
 args = parser.parse_args()
