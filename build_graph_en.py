@@ -36,6 +36,16 @@ def cos_similarity(word1, word2, fasttext_model):
         return 0
 
 
+def doc_word_similarity(word, doc, fasttext_model):
+    word_emb = np.mean([fasttext_model[word]], axis=0)
+    doc_emb = np.mean([fasttext_model[w] for w in doc], axis=0)
+    distance = scipy.spatial.distance.cosine(word_emb, doc_emb)
+    if distance >= 0:
+        return 1 - distance
+    else:
+        return 0
+
+
 # build corpus
 dataset = sys.argv[1]
 weight_mode = sys.argv[2]  # ['pmi', 'cos']
@@ -750,25 +760,45 @@ for doc_id in range(len(shuffle_doc_words_list)):
         else:
             doc_word_freq[doc_word_str] = 1
 
-for i in range(len(shuffle_doc_words_list)):
-    doc_words = shuffle_doc_words_list[i]
-    words = doc_words.split()
-    doc_word_set = set()
-    for word in words:
-        if word in doc_word_set:
-            continue
-        j = word_id_map[word]
-        key = str(i) + ',' + str(j)
-        freq = doc_word_freq[key]
-        if i < (train_size + val_size):
-            row.append(i)
-        else:
-            row.append(i + vocab_size)
-        col.append(train_size + val_size + j)
-        idf = log(1.0 * len(shuffle_doc_words_list) /
-                  word_doc_freq[vocab[j]])
-        weight.append(freq * idf)
-        doc_word_set.add(word)
+if weight_mode != 'cos_cos':
+    for i in range(len(shuffle_doc_words_list)):
+        doc_words = shuffle_doc_words_list[i]
+        words = doc_words.split()
+        doc_word_set = set()
+        for word in words:
+            if word in doc_word_set:
+                continue
+            j = word_id_map[word]
+            key = str(i) + ',' + str(j)
+            freq = doc_word_freq[key]
+            if i < (train_size + val_size):
+                row.append(i)
+            else:
+                row.append(i + vocab_size)
+            col.append(train_size + val_size + j)
+            idf = log(1.0 * len(shuffle_doc_words_list) /
+                      word_doc_freq[vocab[j]])
+            weight.append(freq * idf)
+            doc_word_set.add(word)
+
+elif weight_mode == 'cos_cos':
+    for i in range(len(shuffle_doc_words_list)):
+        doc_words = shuffle_doc_words_list[i]
+        words = doc_words.split()
+        doc_word_set = set()
+
+        for word in words:
+            if word in doc_word_set:
+                continue
+            j = word_id_map[word]
+            if i < (train_size + val_size):
+                row.append(i)
+            else:
+                row.append(i + vocab_size)
+            col.append(train_size + val_size + j)
+            sim = doc_word_similarity(word, words, ft)
+            weight.append(sim)
+            doc_word_set.add(word)
 
 node_size = train_size + val_size + vocab_size + test_size
 adj = sp.csr_matrix(
