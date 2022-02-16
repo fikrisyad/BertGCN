@@ -808,7 +808,7 @@ elif weight_mode == 'cos_cos':
     for i in range(len(shuffle_doc_words_list)):
         doc_words = shuffle_doc_words_list[i]
         words = mecabko.morphs(doc_words)
-        doc_word_set = ()
+        doc_word_set = set()
 
         for word in words:
             if word in doc_word_set:
