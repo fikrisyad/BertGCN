@@ -713,7 +713,7 @@ if weight_mode == 'pmi':
         weight.append(pmi)
 
 # word vector cosine similarity as weights
-elif weight_mode == 'cos':
+elif weight_mode == 'cos' or weight_mode == 'cos_cos':
     print("Using cosine similarity as weights")
     for key in word_pair_count:
         temp = key.split(',')
