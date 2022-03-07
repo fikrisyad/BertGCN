@@ -154,7 +154,6 @@ full_label = {
     '教育、学術': 31
 }
 
-
 # if dataset not in datasets:
 #     sys.exit("wrong dataset name")
 
@@ -194,42 +193,41 @@ for lang_path in lang_paths:
     source_val_idx = []
     source_test_idx = []
     for i, line in enumerate(lines):
-    line = line.strip()
-    title, content = line.split('</s>')
-    if len(content) > 0:
-        source_train_idx.append(i)
-        doc_name_list.append(title)
-        doc_train_list.append(title)
-        doc_content_list.append(content)
-        train_content_list.append(content)
+        line = line.strip()
+        title, content = line.split('</s>')
+        if len(content) > 0:
+            source_train_idx.append(i)
+            doc_name_list.append(title)
+            doc_train_list.append(title)
+            doc_content_list.append(content)
+            train_content_list.append(content)
     ftrain.close()
 
     lines = fval.readlines()
     for i, line in enumerate(lines):
-    line = line.strip()
-    title, content = line.split('</s>')
-    if len(content) > 0:
-        source_val_idx.append(i)
-        doc_name_list.append(title)
-        doc_val_list.append(title)
-        doc_content_list.append(content)
-        val_content_list.append(content)
+        line = line.strip()
+        title, content = line.split('</s>')
+        if len(content) > 0:
+            source_val_idx.append(i)
+            doc_name_list.append(title)
+            doc_val_list.append(title)
+            doc_content_list.append(content)
+            val_content_list.append(content)
     fval.close()
 
     lines = ftest.readlines()
     for i, line in enumerate(lines):
-    line = line.strip()
-    title, content = line.split('</s>')
-    if len(content) > 0:
-        source_test_idx.append(i)
-        doc_name_list.append(title)
-        doc_test_list.append(title)
-        doc_content_list.append(content)
-        test_content_list.append(content)
+        line = line.strip()
+        title, content = line.split('</s>')
+        if len(content) > 0:
+            source_test_idx.append(i)
+            doc_name_list.append(title)
+            doc_test_list.append(title)
+            doc_content_list.append(content)
+            test_content_list.append(content)
     ftest.close()
 
-# for label
-
+    # for label
 
     ftrain = open(lang_path + 'train.target', 'r', encoding='utf-8')
     fval = open(lang_path + 'val.target', 'r', encoding='utf-8')
@@ -391,7 +389,6 @@ f = open('data/corpus/' + dataset + '.' + weight_mode + '_vocab.txt', 'w', encod
 f.write(vocab_str)
 f.close()
 
-
 # label list
 # label_set = set()
 # for doc_meta in shuffle_doc_name_list:
@@ -454,7 +451,7 @@ for i in range(real_train_size):
     # temp = doc_meta.split('\t')
     # label = temp[2]
     label = shuffle_doc_label_list[i]
-    one_hot = [0 for l in range(int(len(full_label)/len(lang_paths)))]
+    one_hot = [0 for l in range(int(len(full_label) / len(lang_paths)))]
     # label_index = full_label.index(label)
     label_index = full_label[label]
     one_hot[label_index] = 1
@@ -494,7 +491,7 @@ vx = sp.csr_matrix((data_vx, (row_vx, col_vx)),
 vy = []
 for i in range(val_size):
     label = shuffle_doc_label_list[i + train_size]  # should be replaced with shuffled_val_label_list
-    one_hot = [0 for l in range(int(len(full_label)/len(lang_paths)))]
+    one_hot = [0 for l in range(int(len(full_label) / len(lang_paths)))]
     # label_index = label_list.index(label)
     # label_index = full_label.index(label)
     label_index = full_label[label]
@@ -539,7 +536,7 @@ for i in range(test_size):
     label = shuffle_doc_label_list[i + train_size + val_size]  # should be replaced with shuffled_test_label_list
     # one_hot = [0 for l in range(len(label_list))]
     # label_index = label_list.index(label)
-    one_hot = [0 for l in range(int(len(full_label)/len(lang_paths)))]
+    one_hot = [0 for l in range(int(len(full_label) / len(lang_paths)))]
     # label_index = full_label.index(label)
     label_index = full_label[label]
     one_hot[label_index] = 1
@@ -602,7 +599,7 @@ for i in range(train_size + val_size):
     label = shuffle_doc_label_list[i]
     # one_hot = [0 for l in range(len(label_list))]
     # label_index = label_list.index(label)
-    one_hot = [0 for l in range(int(len(full_label)/len(lang_paths)))]
+    one_hot = [0 for l in range(int(len(full_label) / len(lang_paths)))]
     # label_index = full_label.index(label)
     label_index = full_label[label]
     one_hot[label_index] = 1
@@ -610,7 +607,7 @@ for i in range(train_size + val_size):
 
 for i in range(vocab_size):
     # one_hot = [0 for l in range(len(label_list))]
-    one_hot = [0 for l in range(int(len(full_label)/len(lang_paths)))]
+    one_hot = [0 for l in range(int(len(full_label) / len(lang_paths)))]
     ally.append(one_hot)
 
 ally = np.array(ally)
