@@ -183,6 +183,7 @@ english_path = '/home/lr/kwonjingun/data_server/NAVER_MTC/naver/reddit_dataset/a
 lang_paths = [korean_path, japanese_path, english_path]
 
 for lang_path in lang_paths:
+    splitter = '\t' if lang_path == japanese_path else '</s>'
 
     ftrain = open(lang_path + 'train.source', 'r', encoding='utf-8')
     fval = open(lang_path + 'val.source', 'r', encoding='utf-8')
@@ -194,7 +195,7 @@ for lang_path in lang_paths:
     source_test_idx = []
     for i, line in enumerate(lines):
         line = line.strip()
-        title, content = line.split('</s>')
+        title, content = line.split(splitter)
         if len(content) > 0:
             source_train_idx.append(i)
             doc_name_list.append(title)
@@ -206,7 +207,7 @@ for lang_path in lang_paths:
     lines = fval.readlines()
     for i, line in enumerate(lines):
         line = line.strip()
-        title, content = line.split('</s>')
+        title, content = line.split(splitter)
         if len(content) > 0:
             source_val_idx.append(i)
             doc_name_list.append(title)
@@ -218,7 +219,7 @@ for lang_path in lang_paths:
     lines = ftest.readlines()
     for i, line in enumerate(lines):
         line = line.strip()
-        title, content = line.split('</s>')
+        title, content = line.split(splitter)
         if len(content) > 0:
             source_test_idx.append(i)
             doc_name_list.append(title)
