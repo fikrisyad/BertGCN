@@ -12,6 +12,7 @@ import scipy.sparse as sp
 from konlpy.tag import Hannanum
 from konlpy.tag import Komoran
 import mecab  # python-mecab-ko
+import MeCab
 from utils import loadWord2Vec, clean_str
 from math import log
 from sklearn import svm
@@ -29,6 +30,8 @@ datasets = ['20ng', 'R8', 'R52', 'ohsumed', 'mr', 'korean', 'kr_full_label']
 fasttext.util.download_model('ko', if_exists='ignore')  # korean model
 ft = fasttext.load_model('cc.ko.300.bin')
 
+mecabko = mecab.MeCab()
+mecabjp = MeCab.Tagger("-Owakati")
 
 def cos_similarity(word1, word2, fasttext_model):
     word1_emb = np.mean([fasttext_model[word1]], axis=0)
@@ -48,6 +51,16 @@ def doc_word_similarity(word, doc, fasttext_model):
         return 1 - distance
     else:
         return 0
+
+
+def word_segmenting(doc, lang):
+    if lang == 'korean':
+        words = mecabko.morphs(doc)
+    elif lang == 'japanese':
+        words = mecabjp.parse(doc_words).split()
+    else:
+        words = doc.split()
+    return words
 
 
 # build corpus
@@ -177,12 +190,16 @@ val_label_list = []
 test_label_list = []
 doc_label_list = []
 
+korean_segmenter = mecab.MeCab()
+japanese_segmenter =
+
 korean_path = '/home/lr/kwonjingun/data_server/NAVER_MTC/naver/dataset/processed/both/'
 japanese_path = 'data/japanese/'
 english_path = '/home/lr/kwonjingun/data_server/NAVER_MTC/naver/reddit_dataset/annotated/splited/'
 lang_paths = [korean_path, japanese_path, english_path]
+langs = ['korean', 'japanese', 'english']
 
-for lang_path in lang_paths:
+for lang, lang_path in zip(langs, lang_paths):
     splitter = '\t' if lang_path == japanese_path else '</s>'
 
     ftrain = open(lang_path + 'train.source', 'r', encoding='utf-8')
@@ -200,8 +217,8 @@ for lang_path in lang_paths:
             source_train_idx.append(i)
             doc_name_list.append(title)
             doc_train_list.append(title)
-            doc_content_list.append(content)
-            train_content_list.append(content)
+            doc_content_list.append(word_segmenting(content, lang))
+            train_content_list.append(word_segmenting(content, lang))
     ftrain.close()
 
     lines = fval.readlines()
@@ -212,8 +229,8 @@ for lang_path in lang_paths:
             source_val_idx.append(i)
             doc_name_list.append(title)
             doc_val_list.append(title)
-            doc_content_list.append(content)
-            val_content_list.append(content)
+            doc_content_list.append(word_segmenting(content, lang))
+            val_content_list.append(word_segmenting(content, lang))
     fval.close()
 
     lines = ftest.readlines()
@@ -224,8 +241,8 @@ for lang_path in lang_paths:
             source_test_idx.append(i)
             doc_name_list.append(title)
             doc_test_list.append(title)
-            doc_content_list.append(content)
-            test_content_list.append(content)
+            doc_content_list.append(word_segmenting(content, lang))
+            test_content_list.append(word_segmenting(content, lang))
     ftest.close()
 
     # for label
@@ -323,7 +340,7 @@ for idx in ids:
         shuffle_doc_words_list.append(doc_content_list[int(idx)])
         shuffle_doc_label_list.append(doc_label_list[int(idx)])
 shuffle_doc_name_str = '\n'.join(shuffle_doc_name_list)
-shuffle_doc_words_str = '\n'.join(shuffle_doc_words_list)
+shuffle_doc_words_str = '\n'.join([' '.join(doc_words) for doc_words in shuffle_doc_words_list])
 shuffle_doc_label_str = '\n'.join(shuffle_doc_label_list)
 
 f = open('data/' + dataset + '.' + weight_mode + '_shuffle.txt', 'w', encoding='utf-8')
@@ -341,13 +358,12 @@ f.close()
 # build vocab
 word_freq = {}
 word_set = set()
-# hannanum = Hannanum()
-# komoran = Komoran()
-mecabko = mecab.MeCab()
+# mecabko = mecab.MeCab()
+# mecabjp = MeCab.Tagger("-Owakati")
 for doc_words in shuffle_doc_words_list:
     # words = doc_words.split()
-    words = mecabko.morphs(doc_words)
-    for word in words:
+    # words = mecabko.morphs(doc_words)
+    for word in doc_words:
         word_set.add(word)
         if word in word_freq:
             word_freq[word] += 1
@@ -363,7 +379,8 @@ for i in range(len(shuffle_doc_words_list)):
     doc_words = shuffle_doc_words_list[i]
     # words = doc_words.split()
     # words = hannanum.morphs(doc_words)
-    words = mecabko.morphs(doc_words)
+    # words = mecabko.morphs(doc_words)
+    words = doc_words
     appeared = set()
     for word in words:
         if word in appeared:
@@ -427,7 +444,8 @@ for i in range(real_train_size):
     doc_words = shuffle_doc_words_list[i]
     # words = doc_words.split()
     # words = hannanum.morphs(doc_words)
-    words = mecabko.morphs(doc_words)
+    # words = mecabko.morphs(doc_words)
+    words = doc_words
     doc_len = len(words)
     for word in words:
         if word in word_vector_map:
@@ -470,7 +488,8 @@ for i in range(val_size):
     doc_vec = np.array([0.0 for k in range(word_embeddings_dim)])
     doc_words = shuffle_doc_words_list[i + train_size]
     # words = hannanum.morphs(doc_words)
-    words = mecabko.morphs(doc_words)
+    # words = mecabko.morphs(doc_words)
+    words = doc_words
     doc_len = len(words)
     # if doc_len <= 0:
     #     print("doc_words:", doc_words)
@@ -512,7 +531,8 @@ for i in range(test_size):
     doc_words = shuffle_doc_words_list[i + train_size + val_size]
     # words = doc_words.split()
     # words = hannanum.morphs(doc_words)
-    words = mecabko.morphs(doc_words)
+    # words = mecabko.morphs(doc_words)
+    words = doc_words
     doc_len = len(words)
     for word in words:
         if word in word_vector_map:
@@ -567,7 +587,8 @@ for i in range(train_size + val_size):  # following the original code
     doc_words = shuffle_doc_words_list[i]
     # words = doc_words.split()
     # words = hannanum.morphs(doc_words)
-    words = mecabko.morphs(doc_words)
+    # words = mecabko.morphs(doc_words)
+    words = doc_words
     doc_len = len(words)
     for word in words:
         if word in word_vector_map:
@@ -626,7 +647,8 @@ windows = []
 for doc_words in shuffle_doc_words_list:
     # words = doc_words.split()
     # words = hannanum.morphs(doc_words)
-    words = mecabko.morphs(doc_words)
+    # words = mecabko.morphs(doc_words)
+    words = doc_words
     length = len(words)
     if length <= window_size:
         windows.append(words)
@@ -733,8 +755,9 @@ doc_word_freq = {}
 for doc_id in range(len(shuffle_doc_words_list)):
     doc_words = shuffle_doc_words_list[doc_id]
     # words = hannanum.morphs(doc_words)
-    words = mecabko.morphs(doc_words)
+    # words = mecabko.morphs(doc_words)
     # words = doc_words.split()
+    words = doc_words
     # print("DEBUG word_id_map", len(word_id_map))
     # print("DEBUG len vocab", len(vocab))
     for word in words:
@@ -751,7 +774,8 @@ if weight_mode != 'cos_cos':
         doc_words = shuffle_doc_words_list[i]
         # words = doc_words.split()
         # words = hannanum.morphs(doc_words)
-        words = mecabko.morphs(doc_words)
+        # words = mecabko.morphs(doc_words)
+        words = doc_words
         doc_word_set = set()
         for word in words:
             if word in doc_word_set:
@@ -772,7 +796,8 @@ if weight_mode != 'cos_cos':
 elif weight_mode == 'cos_cos':
     for i in range(len(shuffle_doc_words_list)):
         doc_words = shuffle_doc_words_list[i]
-        words = mecabko.morphs(doc_words)
+        # words = mecabko.morphs(doc_words)
+        words = doc_words
         doc_word_set = set()
 
         for word in words:

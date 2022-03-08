@@ -37,6 +37,7 @@ parser.add_argument('--dropout', type=float, default=0.5)
 parser.add_argument('--gcn_lr', type=float, default=1e-3)
 parser.add_argument('--bert_lr', type=float, default=1e-5)
 parser.add_argument('--update_bert', type=int, default=1, choices=[1, 0])
+parser.add_argument('--weight_mode', type=str, default=None, choices=['pmi', 'cos', 'cos_cos'])
 
 args = parser.parse_args()
 max_length = args.max_length
@@ -55,6 +56,7 @@ dropout = args.dropout
 gcn_lr = args.gcn_lr
 bert_lr = args.bert_lr
 update_bert = args.update_bert
+weight_mode = args.weight_mode
 
 if checkpoint_dir is None:
     ckpt_dir = './checkpoint/{}_{}_{}'.format(bert_init, gcn_model, dataset)
