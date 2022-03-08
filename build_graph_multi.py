@@ -57,7 +57,7 @@ def word_segmenting(doc, lang):
     if lang == 'korean':
         words = mecabko.morphs(doc)
     elif lang == 'japanese':
-        words = mecabjp.parse(doc_words).split()
+        words = mecabjp.parse(doc).split()
     else:
         words = doc.split()
     return words
