@@ -190,9 +190,6 @@ val_label_list = []
 test_label_list = []
 doc_label_list = []
 
-korean_segmenter = mecab.MeCab()
-japanese_segmenter =
-
 korean_path = '/home/lr/kwonjingun/data_server/NAVER_MTC/naver/dataset/processed/both/'
 japanese_path = 'data/japanese/'
 english_path = '/home/lr/kwonjingun/data_server/NAVER_MTC/naver/reddit_dataset/annotated/splited/'
