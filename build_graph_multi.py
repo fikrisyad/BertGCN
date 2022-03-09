@@ -33,6 +33,7 @@ ft = fasttext.load_model('cc.ko.300.bin')
 mecabko = mecab.MeCab()
 mecabjp = MeCab.Tagger("-Owakati")
 
+
 def cos_similarity(word1, word2, fasttext_model):
     word1_emb = np.mean([fasttext_model[word1]], axis=0)
     word2_emb = np.mean([fasttext_model[word2]], axis=0)
@@ -199,84 +200,92 @@ langs = ['korean', 'japanese', 'english']
 for lang, lang_path in zip(langs, lang_paths):
     splitter = '\t' if lang_path == japanese_path else '</s>'
 
-    ftrain = open(lang_path + 'train.source', 'r', encoding='utf-8')
-    fval = open(lang_path + 'val.source', 'r', encoding='utf-8')
-    ftest = open(lang_path + 'test.source', 'r', encoding='utf-8')
+    # for zero-shot setting, only use korean for training and validation
 
-    lines = ftrain.readlines()
-    source_train_idx = []
-    source_val_idx = []
-    source_test_idx = []
-    for i, line in enumerate(lines):
-        line = line.strip()
-        title, content = line.split(splitter)
-        if len(content) > 0:
-            source_train_idx.append(i)
-            doc_name_list.append(title)
-            doc_train_list.append(title)
-            doc_content_list.append(word_segmenting(content, lang))
-            train_content_list.append(word_segmenting(content, lang))
-    ftrain.close()
+    if lang == 'korean':
+        ftrain = open(lang_path + 'train.source', 'r', encoding='utf-8')
+        fval = open(lang_path + 'val.source', 'r', encoding='utf-8')
+        # ftest = open(lang_path + 'test.source', 'r', encoding='utf-8')
 
-    lines = fval.readlines()
-    for i, line in enumerate(lines):
-        line = line.strip()
-        title, content = line.split(splitter)
-        if len(content) > 0:
-            source_val_idx.append(i)
-            doc_name_list.append(title)
-            doc_val_list.append(title)
-            doc_content_list.append(word_segmenting(content, lang))
-            val_content_list.append(word_segmenting(content, lang))
-    fval.close()
+        lines = ftrain.readlines()
+        source_train_idx = []
+        source_val_idx = []
+        source_test_idx = []
+        for i, line in enumerate(lines):
+            line = line.strip()
+            title, content = line.split(splitter)
+            if len(content) > 0:
+                source_train_idx.append(i)
+                doc_name_list.append(title)
+                doc_train_list.append(title)
+                doc_content_list.append(word_segmenting(content, lang))
+                train_content_list.append(word_segmenting(content, lang))
+        ftrain.close()
 
-    lines = ftest.readlines()
-    for i, line in enumerate(lines):
-        line = line.strip()
-        title, content = line.split(splitter)
-        if len(content) > 0:
-            source_test_idx.append(i)
-            doc_name_list.append(title)
-            doc_test_list.append(title)
-            doc_content_list.append(word_segmenting(content, lang))
-            test_content_list.append(word_segmenting(content, lang))
-    ftest.close()
+        lines = fval.readlines()
+        for i, line in enumerate(lines):
+            line = line.strip()
+            title, content = line.split(splitter)
+            if len(content) > 0:
+                source_val_idx.append(i)
+                doc_name_list.append(title)
+                doc_val_list.append(title)
+                doc_content_list.append(word_segmenting(content, lang))
+                val_content_list.append(word_segmenting(content, lang))
+        fval.close()
+
+    else:
+        # use japanese and english for test only
+        # zero-shot
+        ftest = open(lang_path + 'test.source', 'r', encoding='utf-8')
+        lines = ftest.readlines()
+        for i, line in enumerate(lines):
+            line = line.strip()
+            title, content = line.split(splitter)
+            if len(content) > 0:
+                source_test_idx.append(i)
+                doc_name_list.append(title)
+                doc_test_list.append(title)
+                doc_content_list.append(word_segmenting(content, lang))
+                test_content_list.append(word_segmenting(content, lang))
+        ftest.close()
 
     # for label
+    if lang == 'korean':
+        ftrain = open(lang_path + 'train.target', 'r', encoding='utf-8')
+        fval = open(lang_path + 'val.target', 'r', encoding='utf-8')
+        # ftest = open(lang_path + 'test.target', 'r', encoding='utf-8')
 
-    ftrain = open(lang_path + 'train.target', 'r', encoding='utf-8')
-    fval = open(lang_path + 'val.target', 'r', encoding='utf-8')
-    ftest = open(lang_path + 'test.target', 'r', encoding='utf-8')
+        lines = ftrain.readlines()
+        for i, line in enumerate(lines):
+            if i in source_train_idx:
+                temp = line.split(">")
+                # if temp[0].strip() in full_label:
+                #     label_set.add(temp[0].strip())
+                train_label_list.append(temp[0].strip())
+                doc_label_list.append(temp[0].strip())
+        ftrain.close()
 
-    lines = ftrain.readlines()
-    for i, line in enumerate(lines):
-        if i in source_train_idx:
-            temp = line.split(">")
-            # if temp[0].strip() in full_label:
-            #     label_set.add(temp[0].strip())
-            train_label_list.append(temp[0].strip())
-            doc_label_list.append(temp[0].strip())
-    ftrain.close()
-
-    lines = fval.readlines()
-    for i, line in enumerate(lines):
-        if i in source_val_idx:
-            temp = line.split(">")
-            # if temp[0].strip() in full_label:
-            #     label_set.add(temp[0].strip())
-            val_label_list.append(temp[0].strip())
-            doc_label_list.append(temp[0].strip())
-    fval.close()
-
-    lines = ftest.readlines()
-    for i, line in enumerate(lines):
-        if i in source_test_idx:
-            temp = line.split(">")
-            # if temp[0].strip() in full_label:
-            #     label_set.add(temp[0].strip())
-            test_label_list.append(temp[0].strip())
-            doc_label_list.append(temp[0].strip())
-    ftest.close()
+        lines = fval.readlines()
+        for i, line in enumerate(lines):
+            if i in source_val_idx:
+                temp = line.split(">")
+                # if temp[0].strip() in full_label:
+                #     label_set.add(temp[0].strip())
+                val_label_list.append(temp[0].strip())
+                doc_label_list.append(temp[0].strip())
+        fval.close()
+    else:
+        ftest = open(lang_path + 'test.target', 'r', encoding='utf-8')
+        lines = ftest.readlines()
+        for i, line in enumerate(lines):
+            if i in source_test_idx:
+                temp = line.split(">")
+                # if temp[0].strip() in full_label:
+                #     label_set.add(temp[0].strip())
+                test_label_list.append(temp[0].strip())
+                doc_label_list.append(temp[0].strip())
+        ftest.close()
 
 # partial labeled dta
 # train_ids = train_ids[:int(0.2 * len(train_ids))]
