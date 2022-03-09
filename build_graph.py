@@ -3,6 +3,7 @@ import random
 import numpy as np
 import pickle as pkl
 import networkx as nx
+import fasttext.util
 import scipy.sparse as sp
 from utils import loadWord2Vec, clean_str
 from math import log
@@ -12,15 +13,30 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 import sys
 from scipy.spatial.distance import cosine
 
-if len(sys.argv) != 2:
-    sys.exit("Use: python build_graph.py <dataset>")
+if len(sys.argv) != 3:
+    sys.exit("Use: python build_graph.py <dataset> <weight_mode>")
 
 datasets = ['20ng', 'R8', 'R52', 'ohsumed', 'mr']
 # build corpus
 dataset = sys.argv[1]
+weight_mode = sys.argv[2]  # ['pmi', 'cos']
 
 if dataset not in datasets:
     sys.exit("wrong dataset name")
+
+# fasttext download model
+fasttext.util.download_model('ko', if_exists='ignore')  # korean model
+ft = fasttext.load_model('cc.ko.300.bin')
+
+
+def cos_similarity(word1, word2, fasttext_model):
+    word1_emb = np.mean([fasttext_model[word1]], axis=0)
+    word2_emb = np.mean([fasttext_model[word2]], axis=0)
+    distance = scipy.spatial.distance.cosine(word1_emb, word2_emb)
+    if distance >= 0:
+        return 1 - distance
+    else:
+        return 0
 
 # Read Word Vectors
 # word_vector_file = 'data/glove.6B/glove.6B.300d.txt'
@@ -430,25 +446,42 @@ col = []
 weight = []
 
 # pmi as weights
+# option 2: cos_similarity as weights
 
 num_window = len(windows)
 
-for key in word_pair_count:
-    temp = key.split(',')
-    i = int(temp[0])
-    j = int(temp[1])
-    count = word_pair_count[key]
-    word_freq_i = word_window_freq[vocab[i]]
-    word_freq_j = word_window_freq[vocab[j]]
-    pmi = log((1.0 * count / num_window) /
-              (1.0 * word_freq_i * word_freq_j / (num_window * num_window)))
-    if pmi <= 0:
-        continue
-    row.append(train_size + i)
-    col.append(train_size + j)
-    weight.append(pmi)
+if weight_mode == 'pmi':
+    for key in word_pair_count:
+        temp = key.split(',')
+        i = int(temp[0])
+        j = int(temp[1])
+        count = word_pair_count[key]
+        word_freq_i = word_window_freq[vocab[i]]
+        word_freq_j = word_window_freq[vocab[j]]
+        pmi = log((1.0 * count / num_window) /
+                  (1.0 * word_freq_i * word_freq_j / (num_window * num_window)))
+        if pmi <= 0:
+            continue
+        row.append(train_size + i)
+        col.append(train_size + j)
+        weight.append(pmi)
 
 # word vector cosine similarity as weights
+elif weight_mode == 'cos' or weight_mode == 'cos_cos':
+    print("Using cosine similarity as weights")
+    for key in word_pair_count:
+        temp = key.split(',')
+        i = int(temp[0])
+        j = int(temp[1])
+        word_i_str = vocab[i]
+        word_j_str = vocab[j]
+        sim = cos_similarity(word_i_str, word_j_str, ft)
+
+        if sim <= 0:
+            continue
+        row.append(train_size + val_size + i)
+        col.append(train_size + val_size + j)
+        weight.append(sim)
 
 '''
 for i in range(vocab_size):
