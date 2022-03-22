@@ -58,8 +58,10 @@ bert_lr = args.bert_lr
 update_bert = args.update_bert
 weight_mode = args.weight_mode
 
+dataset_str = dataset if not weight_mode else dataset + '.' + weight_mode
+
 if checkpoint_dir is None:
-    ckpt_dir = './checkpoint/{}_{}_{}'.format(bert_init, gcn_model, dataset)
+    ckpt_dir = './checkpoint/{}_{}_{}'.format(bert_init, gcn_model, dataset_str)
 else:
     ckpt_dir = checkpoint_dir
 os.makedirs(ckpt_dir, exist_ok=True)
@@ -86,7 +88,7 @@ logger.info('checkpoints will be saved in {}'.format(ckpt_dir))
 
 
 # Data Preprocess
-adj, features, y_train, y_val, y_test, train_mask, val_mask, test_mask, train_size, test_size = load_corpus(dataset)
+adj, features, y_train, y_val, y_test, train_mask, val_mask, test_mask, train_size, test_size = load_corpus(dataset_str)
 '''
 adj: n*n sparse adjacency matrix
 y_train, y_val, y_test: n*c matrices 
