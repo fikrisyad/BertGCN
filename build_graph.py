@@ -8,7 +8,6 @@ import fasttext.util
 import scipy
 import scipy.sparse as sp
 
-from finetune_bert_kr import dataset_str
 from utils import loadWord2Vec, clean_str
 from math import log
 from sklearn import svm
