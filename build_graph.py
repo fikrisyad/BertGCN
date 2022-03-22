@@ -7,6 +7,8 @@ import fasttext
 import fasttext.util
 import scipy
 import scipy.sparse as sp
+
+from finetune_bert_kr import dataset_str
 from utils import loadWord2Vec, clean_str
 from math import log
 from sklearn import svm
@@ -25,6 +27,8 @@ weight_mode = sys.argv[2]  # ['pmi', 'cos']
 
 if dataset not in datasets:
     sys.exit("wrong dataset name")
+
+dataset_str = dataset + '.' + weight_mode
 
 # fasttext download model
 fasttext.util.download_model('ko', if_exists='ignore')  # korean model
@@ -86,7 +90,7 @@ random.shuffle(train_ids)
 # train_ids = train_ids[:int(0.2 * len(train_ids))]
 
 train_ids_str = '\n'.join(str(index) for index in train_ids)
-f = open('data/' + dataset + '.train.index', 'w')
+f = open('data/' + dataset_str + '.train.index', 'w')
 f.write(train_ids_str)
 f.close()
 
@@ -98,7 +102,7 @@ print(test_ids)
 random.shuffle(test_ids)
 
 test_ids_str = '\n'.join(str(index) for index in test_ids)
-f = open('data/' + dataset + '.test.index', 'w')
+f = open('data/' + dataset_str + '.test.index', 'w')
 f.write(test_ids_str)
 f.close()
 
@@ -114,11 +118,11 @@ for id in ids:
 shuffle_doc_name_str = '\n'.join(shuffle_doc_name_list)
 shuffle_doc_words_str = '\n'.join(shuffle_doc_words_list)
 
-f = open('data/' + dataset + '_shuffle.txt', 'w')
+f = open('data/' + dataset_str + '_shuffle.txt', 'w')
 f.write(shuffle_doc_name_str)
 f.close()
 
-f = open('data/corpus/' + dataset + '_shuffle.txt', 'w')
+f = open('data/corpus/' + dataset_str + '_shuffle.txt', 'w')
 f.write(shuffle_doc_words_str)
 f.close()
 
@@ -164,7 +168,7 @@ for i in range(vocab_size):
 
 vocab_str = '\n'.join(vocab)
 
-f = open('data/corpus/' + dataset + '_vocab.txt', 'w')
+f = open('data/corpus/' + dataset_str + '_vocab.txt', 'w')
 f.write(vocab_str)
 f.close()
 
@@ -233,7 +237,7 @@ for doc_meta in shuffle_doc_name_list:
 label_list = list(label_set)
 
 label_list_str = '\n'.join(label_list)
-f = open('data/corpus/' + dataset + '_labels.txt', 'w')
+f = open('data/corpus/' + dataset_str + '_labels.txt', 'w')
 f.write(label_list_str)
 f.close()
 
@@ -247,7 +251,7 @@ real_train_size = train_size - val_size  # - int(0.5 * train_size)
 real_train_doc_names = shuffle_doc_name_list[:real_train_size]
 real_train_doc_names_str = '\n'.join(real_train_doc_names)
 
-f = open('data/' + dataset + '.real_train.name', 'w')
+f = open('data/' + dataset_str + '.real_train.name', 'w')
 f.write(real_train_doc_names_str)
 f.close()
 
@@ -540,30 +544,30 @@ print("Adjacency Matrix:", adj.toarray()[train_size:-test_size])
 print("--Adj Matrix--")
 
 # dump objects
-f = open("data/ind.{}.x".format(dataset), 'wb')
+f = open("data/ind.{}.x".format(dataset_str), 'wb')
 pkl.dump(x, f)
 f.close()
 
-f = open("data/ind.{}.y".format(dataset), 'wb')
+f = open("data/ind.{}.y".format(dataset_str), 'wb')
 pkl.dump(y, f)
 f.close()
 
-f = open("data/ind.{}.tx".format(dataset), 'wb')
+f = open("data/ind.{}.tx".format(dataset_str), 'wb')
 pkl.dump(tx, f)
 f.close()
 
-f = open("data/ind.{}.ty".format(dataset), 'wb')
+f = open("data/ind.{}.ty".format(dataset_str), 'wb')
 pkl.dump(ty, f)
 f.close()
 
-f = open("data/ind.{}.allx".format(dataset), 'wb')
+f = open("data/ind.{}.allx".format(dataset_str), 'wb')
 pkl.dump(allx, f)
 f.close()
 
-f = open("data/ind.{}.ally".format(dataset), 'wb')
+f = open("data/ind.{}.ally".format(dataset_str), 'wb')
 pkl.dump(ally, f)
 f.close()
 
-f = open("data/ind.{}.adj".format(dataset), 'wb')
+f = open("data/ind.{}.adj".format(dataset_str), 'wb')
 pkl.dump(adj, f)
 f.close()
